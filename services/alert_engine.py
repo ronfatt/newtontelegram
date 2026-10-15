@@ -9,6 +9,134 @@ from image_generator import create_alert_card
 from publishers.telegram_bot import TelegramPublisher
 from publishers.twitter_client import TwitterPublisher
 
+ENGLISH_TEMPLATES = {
+    "buy": (
+        "🟢 <b>【ENI DEX Large Buy Alert】</b> 🟢\n\n"
+        "💰 <b>Buy Amount:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏷 <b>Execution Price:</b> <b>${price:.4f}</b>\n"
+        "👤 <b>Buyer Address:</b> <code>{buyer_short}</code>\n"
+        "🔗 <b>Tx Hash:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🚀 <i>High-frequency trading activity on ENI Chain. Newton Protocol ecosystem is expanding!</i>\n"
+        "#ENI #DEX #BuyAlert #ENIChain #Web3"
+    ),
+    "sell": (
+        "🔴 <b>【ENI DEX Sell Alert】</b> 🔴\n\n"
+        "📉 <b>Sell Amount:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏷 <b>Execution Price:</b> <b>${price:.4f}</b>\n"
+        "👤 <b>Seller Address:</b> <code>{seller_short}</code>\n"
+        "🔗 <b>Tx Hash:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "⚡ <i>Real-time liquidity and automated AMM tracking on ENI Chain</i>\n"
+        "#ENI #DEX #SellAlert #ENIChain"
+    ),
+    "whale": (
+        "🐋 <b>【ENI Chain Whale Movement Alert】</b> 🐋\n\n"
+        "🚨 <b>Large On-Chain Transfer Detected!</b>\n"
+        "💎 <b>Transfer Amount:</b> <b>{amount:,.0f} {symbol}</b>\n"
+        "💵 <b>Estimated Value:</b> <b>${usd_value:,.2f}</b>\n"
+        "📤 <b>From:</b> <code>{from_short}</code>\n"
+        "📥 <b>To:</b> <code>{to_short}</code>\n"
+        "🔗 <b>Tx Hash:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🌐 <i>Monitoring on-chain liquidity shifts & major token distribution</i>\n"
+        "#ENI #WhaleAlert #Crypto #Blockchain #ENIChain"
+    ),
+    "staking": (
+        "💎 <b>【ENI Staking & Liquidity Alert】</b> 💎\n\n"
+        "⚡ <b>Action:</b> {action_type}\n"
+        "💰 <b>Amount:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏛 <b>Pool / Contract:</b> <b>{pool_name}</b>\n"
+        "👤 <b>User Address:</b> <code>{user_short}</code>\n"
+        "🔗 <b>Tx Hash:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🌟 <i>Strengthening decentralized consensus & earning staking yield with Newton Protocol!</i>\n"
+        "#ENI #Staking #Newton #DeFi"
+    ),
+    "summary": (
+        "📊 <b>【ENI Chain Real-Time Network Report】</b> 📊\n\n"
+        "🌐 <b>Network:</b> <b>ENI Mainnet (ChainID: {chain_id})</b>\n"
+        "🧱 <b>Block Height:</b> <b>#{total_blocks:,}</b>\n"
+        "📈 <b>Total Transactions:</b> <b>{total_txs:,}</b>\n"
+        "👥 <b>Unique Addresses:</b> <b>{active_addresses:,}</b>\n"
+        "⚡ <b>24H Transactions:</b> <b>{transactions_today:,}</b>\n"
+        "⛽ <b>Average Gas:</b> <b>{gas_price} Gwei</b>\n"
+        "⏱ <b>Block Time:</b> <b>{block_time}s</b>\n\n"
+        "🌐 <b>Blockscout Explorer:</b> <a href='{explorer_url}'>scan.eniac.network</a>\n"
+        "#ENI #ENIChain #BlockchainReport #Mainnet"
+    ),
+    "news": (
+        "🌍 <b>【Global Crypto Breaking News】</b> 🌍\n\n"
+        "📰 <b>{news_title}</b>\n\n"
+        "📌 <b>Summary:</b> {news_summary}\n"
+        "🏛 <b>Source:</b> <b>{news_source}</b>\n"
+        "⏰ <b>Published:</b> {news_time}\n"
+        "🔗 <b>Original Article:</b> <a href='{news_url}'>Read Full Story</a>\n\n"
+        "⚡ <i>ENI Chain × Newton Protocol Intelligence Feed</i>\n"
+        "#CryptoNews #Blockchain #Web3 #Crypto #Bitcoin #ENIChain"
+    )
+}
+
+CHINESE_TEMPLATES = {
+    "buy": (
+        "🟢 <b>【ENI DEX 大额买单提醒】</b> 🟢\n\n"
+        "💰 <b>买入金额:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏷 <b>成交均价:</b> <b>${price:.4f}</b>\n"
+        "👤 <b>买方地址:</b> <code>{buyer_short}</code>\n"
+        "🔗 <b>交易哈希:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🚀 <i>ENI Chain 链上交易活跃，牛顿协议生态持续增长！</i>\n"
+        "#ENI #DEX #BuyAlert #ENIChain"
+    ),
+    "sell": (
+        "🔴 <b>【ENI DEX 卖出成交提醒】</b> 🔴\n\n"
+        "📉 <b>卖出金额:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏷 <b>成交均价:</b> <b>${price:.4f}</b>\n"
+        "👤 <b>卖方地址:</b> <code>{seller_short}</code>\n"
+        "🔗 <b>交易哈希:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "⚡ <i>实时流动性与自动化做市监控</i>\n"
+        "#ENI #DEX #SellAlert"
+    ),
+    "whale": (
+        "🐋 <b>【ENI 巨鲸链上异动提醒】</b> 🐋\n\n"
+        "🚨 <b>监测到大额链上转账！</b>\n"
+        "💎 <b>转移数量:</b> <b>{amount:,.0f} {symbol}</b>\n"
+        "💵 <b>预估价值:</b> <b>${usd_value:,.2f}</b>\n"
+        "📤 <b>发送地址:</b> <code>{from_short}</code>\n"
+        "📥 <b>接收地址:</b> <code>{to_short}</code>\n"
+        "🔗 <b>交易哈希:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🌐 <i>监控链上大单流动与筹码再分配</i>\n"
+        "#ENI #WhaleAlert #ENIChain"
+    ),
+    "staking": (
+        "💎 <b>【ENI 生态质押/流动性提醒】</b> 💎\n\n"
+        "⚡ <b>类型:</b> {action_type}\n"
+        "💰 <b>数量:</b> <b>{amount:,.0f} {symbol}</b> (${usd_value:,.2f})\n"
+        "🏛 <b>矿池/合约:</b> <b>{pool_name}</b>\n"
+        "👤 <b>用户地址:</b> <code>{user_short}</code>\n"
+        "🔗 <b>交易哈希:</b> <a href='{explorer_url}/tx/{tx_hash}'>{tx_hash_short}</a>\n\n"
+        "🌟 <i>参与牛顿原生协议，共享生态收益！</i>\n"
+        "#ENI #Staking #Newton"
+    ),
+    "summary": (
+        "📊 <b>【ENI Chain 链上实时数据报告】</b> 📊\n\n"
+        "🌐 <b>网络:</b> <b>ENI Mainnet (ChainID: {chain_id})</b>\n"
+        "🧱 <b>最新区块高度:</b> <b>#{total_blocks:,}</b>\n"
+        "📈 <b>链上交易总数:</b> <b>{total_txs:,}</b> 笔\n"
+        "👥 <b>独立持币地址:</b> <b>{active_addresses:,}</b> 个\n"
+        "⚡ <b>24H 链上交易数:</b> <b>{transactions_today:,}</b> 笔\n"
+        "⛽ <b>平均 Gas 价格:</b> <b>{gas_price} Gwei</b>\n"
+        "⏱ <b>平均出块时间:</b> <b>{block_time} 秒</b>\n\n"
+        "🌐 <b>区块浏览器查看：</b> <a href='{explorer_url}'>scan.eniac.network</a>\n"
+        "#ENI #ENIChain #BlockchainReport #Mainnet"
+    ),
+    "news": (
+        "🌍 <b>【区块链国际要闻快讯】</b> 🌍\n\n"
+        "📰 <b>{news_title}</b>\n\n"
+        "📌 <b>核心摘要:</b> {news_summary}\n"
+        "🏛 <b>来源机构:</b> <b>{news_source}</b>\n"
+        "⏰ <b>发布时间:</b> {news_time}\n"
+        "🔗 <b>原文链接:</b> <a href='{news_url}'>点击阅读全文</a>\n\n"
+        "⚡ <i>ENI Chain × Newton 国际前沿资讯同步</i>\n"
+        "#CryptoNews #Blockchain #Web3 #Crypto #Bitcoin"
+    )
+}
+
 class AlertEngine:
     def __init__(self):
         self._listeners: List[Callable[[Dict[str, Any]], Any]] = []
@@ -123,32 +251,25 @@ class AlertEngine:
             if not th.enable_global_news:
                 return {"skipped": True, "reason": "Global news alerts disabled"}
 
+        # Determine target thread
+        raw_target = raw_data.get("target_thread_id")
+        target_tid = str(raw_target) if raw_target is not None else str(config.telegram.thread_id or "1")
+        # Target # General (thread 1, or empty/0) and English Chat (thread 16) MUST receive 100% English content
+        is_general_or_en = target_tid in ["1", "16", "", "None", "0"] or not target_tid
+
         # 3. Select template and render text
         tm = config.templates
         if raw_data.get("content"):
             text = raw_data["content"]
             title = raw_data.get("title", f"ENI {event_type.capitalize()}")
-        elif event_type == "buy":
-            text = self.format_template(tm.buy_template, raw_data, config)
-            title = f"DEX Buy Alert: {amount:,.0f} {config.chain.token_symbol}"
-        elif event_type == "sell":
-            text = self.format_template(tm.sell_template, raw_data, config)
-            title = f"DEX Sell Alert: {amount:,.0f} {config.chain.token_symbol}"
-        elif event_type == "whale":
-            text = self.format_template(tm.whale_template, raw_data, config)
-            title = f"Whale Alert: {amount:,.0f} {config.chain.token_symbol}"
-        elif event_type == "staking":
-            text = self.format_template(tm.staking_template, raw_data, config)
-            title = f"Staking Alert: {amount:,.0f} {config.chain.token_symbol}"
-        elif event_type == "news":
-            text = self.format_template(tm.news_template, raw_data, config)
-            title = f"Global News: {raw_data.get('news_title', '')[:50]}"
-        elif event_type == "tech":
-            text = raw_data.get("content", "ENI Architecture Update")
-            title = raw_data.get("title", "ENI Core Tech & Architecture")
-        else: # summary
-            text = self.format_template(tm.summary_template, raw_data, config)
-            title = f"ENI Chain Live Report: #{raw_data.get('total_blocks', 0):,} Blocks"
+        else:
+            if is_general_or_en:
+                tpl = ENGLISH_TEMPLATES.get(event_type) or tm.model_dump().get(f"{event_type}_template")
+                title = f"ENI {event_type.capitalize()} Alert"
+            else:
+                tpl = CHINESE_TEMPLATES.get(event_type) or tm.model_dump().get(f"{event_type}_template")
+                title = f"ENI {event_type.capitalize()} 提醒"
+            text = self.format_template(tpl, raw_data, config)
 
         # 4. Generate visual card image
         image_path = None
@@ -160,39 +281,70 @@ class AlertEngine:
         # 5. Prepare Telegram buttons
         buttons = []
         if config.telegram.include_buttons:
-            if tx_hash:
-                exp_url = f"{config.chain.explorer_url}/tx/{tx_hash}"
-                buttons = [
-                    [
-                        {"text": "🔍 在 scan.eniac.network 查看", "url": exp_url},
-                        {"text": "🔄 牛顿 DEX 交易", "url": "https://xplan.eniac.network/swap"}
+            if is_general_or_en:
+                # 100% English buttons for # General and English Chat
+                if tx_hash:
+                    exp_url = f"{config.chain.explorer_url}/tx/{tx_hash}"
+                    buttons = [
+                        [
+                            {"text": "🔍 View on Explorer", "url": exp_url},
+                            {"text": "🔄 Newton DEX Swap", "url": "https://xplan.eniac.network/swap"}
+                        ]
                     ]
-                ]
-            elif event_type in ["tech", "summary"]:
-                buttons = [
-                    [
-                        {"text": "🌐 官方区块浏览器", "url": "https://scan.eniac.network"},
-                        {"text": "🏛 ENI 官方网站", "url": "https://eniac.network"}
+                elif event_type in ["tech", "summary"]:
+                    buttons = [
+                        [
+                            {"text": "🌐 Official Explorer", "url": "https://scan.eniac.network"},
+                            {"text": "🏛 Official Portal", "url": "https://eniac.network"}
+                        ]
                     ]
-                ]
-            elif event_type == "news" and raw_data.get("news_url"):
-                buttons = [
-                    [
-                        {"text": "📰 阅读全文原文", "url": raw_data.get("news_url")},
-                        {"text": "🌐 ENI 官网", "url": "https://eniac.network"}
+                elif event_type == "news" and raw_data.get("news_url"):
+                    buttons = [
+                        [
+                            {"text": "📰 Read Full Story", "url": raw_data.get("news_url")},
+                            {"text": "🌐 Official Portal", "url": "https://eniac.network"}
+                        ]
                     ]
-                ]
-            elif event_type == "summary":
-                buttons = [
-                    [
-                        {"text": "🌐 进入 scan.eniac.network 浏览器", "url": config.chain.explorer_url}
+                elif event_type == "summary":
+                    buttons = [
+                        [
+                            {"text": "🌐 Explorer Dashboard", "url": config.chain.explorer_url}
+                        ]
                     ]
-                ]
+            else:
+                # Chinese buttons for Chinese chat
+                if tx_hash:
+                    exp_url = f"{config.chain.explorer_url}/tx/{tx_hash}"
+                    buttons = [
+                        [
+                            {"text": "🔍 在 scan.eniac.network 查看", "url": exp_url},
+                            {"text": "🔄 牛顿 DEX 交易", "url": "https://xplan.eniac.network/swap"}
+                        ]
+                    ]
+                elif event_type in ["tech", "summary"]:
+                    buttons = [
+                        [
+                            {"text": "🌐 官方区块浏览器", "url": "https://scan.eniac.network"},
+                            {"text": "🏛 ENI 官方网站", "url": "https://eniac.network"}
+                        ]
+                    ]
+                elif event_type == "news" and raw_data.get("news_url"):
+                    buttons = [
+                        [
+                            {"text": "📰 阅读全文原文", "url": raw_data.get("news_url")},
+                            {"text": "🌐 ENI 官网", "url": "https://eniac.network"}
+                        ]
+                    ]
+                elif event_type == "summary":
+                    buttons = [
+                        [
+                            {"text": "🌐 进入 scan.eniac.network 浏览器", "url": config.chain.explorer_url}
+                        ]
+                    ]
 
         # 6. Dispatch to Telegram
         tg_status, tg_msg_id, tg_error = "skipped", None, None
         if config.auto_publish and config.telegram.enabled:
-            target_tid = str(raw_data.get("target_thread_id")) if raw_data.get("target_thread_id") is not None else config.telegram.thread_id
             tg_res = await TelegramPublisher.send_alert(
                 bot_token=config.telegram.bot_token,
                 chat_id=config.telegram.chat_id,

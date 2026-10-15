@@ -10,6 +10,8 @@ from database import (
 )
 from services.topic_manager import topic_manager
 from services.research_desk import research_desk
+from services.eni_content_generator import ENIContentGenerator
+from database import get_app_config
 from publishers.twitter_client import TwitterPublisher
 from image_generator import generate_banner_image
 
@@ -74,24 +76,48 @@ class ScheduledTasksManager:
                 )
                 banner_theme = "summary"
             elif task_id == "morning_pulse":
-                data = await research_desk.generate_desk_content("daily")
-                title, content = data["title"], data["content"]
+                if thread_id in (1, 16):
+                    cfg = await get_app_config()
+                    data = await ENIContentGenerator.generate_morning_post(cfg, lang="en")
+                    title, content = data.get("title", "ENI Morning Pulse"), data.get("content", "")
+                else:
+                    data = await research_desk.generate_desk_content("daily")
+                    title, content = data["title"], data["content"]
                 banner_theme = "summary"
             elif task_id == "arch_intel":
-                data = await research_desk.generate_desk_content("architecture")
-                title, content = data["title"], data["content"]
+                if thread_id in (1, 16):
+                    cfg = await get_app_config()
+                    data = await ENIContentGenerator.generate_afternoon_post(cfg, lang="en")
+                    title, content = data.get("title", "ENI Core Architecture"), data.get("content", "")
+                else:
+                    data = await research_desk.generate_desk_content("architecture")
+                    title, content = data["title"], data["content"]
                 banner_theme = "tech"
             elif task_id == "general_broadcast":
-                title = f"💬 Newton ENI 社区每日交流与生态活跃指南"
-                content = (
-                    f"【{title}】\n\n"
-                    f"🌟 各位 Newton ENI 社区成员，主网当前稳定运行中！\n"
-                    f"• 欢迎在各语言频道及技术投研板块畅所欲言；\n"
-                    f"• 谨防任何非官方人员私信索要资产或私钥；\n"
-                    f"• 官方区块链浏览器: https://scan.eniac.network/\n\n"
-                    f"一起建设更高速、更去中心化的 Web3 未来！🚀\n"
-                    f"#NewtonProtocol #ENI #Community"
-                )
+                if thread_id in (1, 16):
+                    title = "💬 Newton Protocol × ENI Chain Community Pulse"
+                    content = (
+                        "🌟 <b>【Newton Protocol × ENI Chain Community Digest】</b> 🌟\n\n"
+                        "Greetings to all global community members! ENI Mainnet is operating smoothly with sub-second finality.\n\n"
+                        "📌 <b>Community Essentials:</b>\n"
+                        "• Join discussions in your dedicated regional language chats\n"
+                        "• Beware of scammers: Official admins will never DM first asking for private keys\n"
+                        "• Official Block Explorer: https://scan.eniac.network\n"
+                        "• Newton DEX Portal: https://xplan.eniac.network/swap\n\n"
+                        "Building an autonomous, decentralized high-frequency future together! 🚀\n"
+                        "#NewtonProtocol #ENIChain #Web3 #Community #Layer1"
+                    )
+                else:
+                    title = f"💬 Newton ENI 社区每日交流与生态活跃指南"
+                    content = (
+                        f"【{title}】\n\n"
+                        f"🌟 各位 Newton ENI 社区成员，主网当前稳定运行中！\n"
+                        f"• 欢迎在各语言频道及技术投研板块畅所欲言；\n"
+                        f"• 谨防任何非官方人员私信索要资产或私钥；\n"
+                        f"• 官方区块链浏览器: https://scan.eniac.network/\n\n"
+                        f"一起建设更高速、更去中心化的 Web3 未来！🚀\n"
+                        f"#NewtonProtocol #ENI #Community"
+                    )
                 banner_theme = "news"
             elif task_id == "whale_evening":
                 data = await research_desk.generate_desk_content("risk")
