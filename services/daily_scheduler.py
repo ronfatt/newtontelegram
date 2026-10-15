@@ -203,8 +203,11 @@ class DailyScheduler:
                     config = await get_app_config()
                     ds = config.daily_schedule
 
+                    # 检查是否开启自动发布到 Telegram
+                    telegram_auto_allowed = config.auto_publish and config.telegram.enabled
+
                     # 1. 每日三篇 #General 英文发帖
-                    if ds.enabled:
+                    if ds.enabled and telegram_auto_allowed:
                         today_str = self.get_today_date_str()
                         runs = await get_today_slot_runs(today_str)
 
@@ -221,24 +224,25 @@ class DailyScheduler:
                             await self.trigger_slot("evening", force=False)
 
                     # 2. 检查多天排期计划 (4 大语言频道)
-                    from database import get_all_campaigns
-                    campaigns = await get_all_campaigns()
-                    today_ymd = now.strftime("%Y-%m-%d")
-                    for c in campaigns:
-                        if c.get("status") == "pending":
-                            sched = c.get("scheduled_time", "").strip()
-                            match_due = False
-                            if len(sched) == 5 and sched == current_hm:
-                                match_due = True
-                            elif f"{today_ymd} {current_hm}" == sched:
-                                match_due = True
+                    if telegram_auto_allowed:
+                        from database import get_all_campaigns
+                        campaigns = await get_all_campaigns()
+                        today_ymd = now.strftime("%Y-%m-%d")
+                        for c in campaigns:
+                            if c.get("status") == "pending":
+                                sched = c.get("scheduled_time", "").strip()
+                                match_due = False
+                                if len(sched) == 5 and sched == current_hm:
+                                    match_due = True
+                                elif f"{today_ymd} {current_hm}" == sched:
+                                    match_due = True
 
-                            if match_due:
-                                print(f"[Daily Scheduler] Triggering campaign Day {c.get('day_number')} '{c.get('campaign_title')}' at {current_hm}...")
-                                try:
-                                    await self.trigger_campaign(c["id"])
-                                except Exception as ce:
-                                    print(f"[Daily Scheduler] Campaign trigger error: {ce}")
+                                if match_due:
+                                    print(f"[Daily Scheduler] Triggering campaign Day {c.get('day_number')} '{c.get('campaign_title')}' at {current_hm}...")
+                                    try:
+                                        await self.trigger_campaign(c["id"])
+                                    except Exception as ce:
+                                        print(f"[Daily Scheduler] Campaign trigger error: {ce}")
 
             except Exception as e:
                 print(f"[Daily Scheduler] Loop error: {e}")
