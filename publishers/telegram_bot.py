@@ -85,7 +85,8 @@ class TelegramPublisher:
                         detected_chats[cid] = cname
 
                     thread_id = msg.get("message_thread_id")
-                    topic_info = msg.get("forum_topic_created") or msg.get("forum_topic_edited") or {}
+                    reply_to = msg.get("reply_to_message") or {}
+                    topic_info = msg.get("forum_topic_created") or msg.get("forum_topic_edited") or reply_to.get("forum_topic_created") or reply_to.get("forum_topic_edited") or {}
                     topic_name = topic_info.get("name")
                     text_snippet = msg.get("text") or msg.get("caption") or "[附件/事件]"
 
