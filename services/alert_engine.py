@@ -192,13 +192,14 @@ class AlertEngine:
         # 6. Dispatch to Telegram
         tg_status, tg_msg_id, tg_error = "skipped", None, None
         if config.auto_publish and config.telegram.enabled:
+            target_tid = str(raw_data.get("target_thread_id")) if raw_data.get("target_thread_id") is not None else config.telegram.thread_id
             tg_res = await TelegramPublisher.send_alert(
                 bot_token=config.telegram.bot_token,
                 chat_id=config.telegram.chat_id,
                 text=text,
                 image_path=image_path if config.telegram.send_images else None,
                 buttons=buttons if config.telegram.include_buttons else None,
-                thread_id=config.telegram.thread_id
+                thread_id=target_tid
             )
             if tg_res.get("success"):
                 tg_status = "success"

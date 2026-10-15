@@ -7,3 +7,4 @@ requests>=2.32.0
 requests_oauthlib>=2.0.0
 aiosqlite>=0.20.0
 web3>=7.0.0
+python-multipart>=0.0.20

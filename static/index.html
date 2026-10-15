@@ -595,6 +595,103 @@
                         </div>
                     </div>
 
+                    <!-- SECTION A: 每日三次全自动发帖至 #General (英文) -->
+                    <div class="card mb-4" style="border-left: 4px solid var(--primary);">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>🌐</span>
+                                    <span>每日 3 次全自动发帖至 #General (英文频道) & 推特矩阵</span>
+                                </h3>
+                                <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
+                                    系统依据预设时段，自动提取 ENI Chain (ChainID: 173) 实时链上数据与架构愿景，生成专业英文图文并自动推送至 <strong># General (Thread #1)</strong> 与推特。
+                                </p>
+                            </div>
+                            <span class="badge badge-success">自动调度中</span>
+                        </div>
+                        <div class="daily-general-grid mt-3" id="dailyGeneralSlotsContainer">
+                            <!-- Slot 1: 09:00 -->
+                            <div class="daily-general-card">
+                                <div class="daily-general-header">
+                                    <span class="daily-general-title">🌅 晨间 09:00 战报</span>
+                                    <span id="slotStatus_morning" class="badge badge-info">等待调度</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    <strong>主题：</strong>ENI Chain Daily On-Chain Pulse & Live Metrics<br>
+                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
+                                    <strong>语言：</strong>English (英文)
+                                </div>
+                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('morning')">
+                                    <span>⚡ 立即触发测试 (发至 #General)</span>
+                                </button>
+                            </div>
+
+                            <!-- Slot 2: 14:00 -->
+                            <div class="daily-general-card">
+                                <div class="daily-general-header">
+                                    <span class="daily-general-title">☀️ 午间 14:00 深度</span>
+                                    <span id="slotStatus_afternoon" class="badge badge-info">等待调度</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    <strong>主题：</strong>Parallel EVM & Modular L1 Architecture<br>
+                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
+                                    <strong>语言：</strong>English (英文)
+                                </div>
+                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('afternoon')">
+                                    <span>⚡ 立即触发测试 (发至 #General)</span>
+                                </button>
+                            </div>
+
+                            <!-- Slot 3: 20:00 -->
+                            <div class="daily-general-card">
+                                <div class="daily-general-header">
+                                    <span class="daily-general-title">🌙 晚间 20:00 速报</span>
+                                    <span id="slotStatus_evening" class="badge badge-info">等待调度</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    <strong>主题：</strong>Ecosystem Trading, DEX Liquidity & Whale Alert<br>
+                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
+                                    <strong>语言：</strong>English (英文)
+                                </div>
+                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('evening')">
+                                    <span>⚡ 立即触发测试 (发至 #General)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION B: 4大语种多天排期发帖与海报管理 (Campaign Manager) -->
+                    <div class="card mb-4" style="border-left: 4px solid var(--cyan);">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>📅</span>
+                                    <span>4大语种多天排期发帖与海报管理 (Day 1, Day 2... 自动入群)</span>
+                                </h3>
+                                <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
+                                    设定多天发帖排期，绑定您的宣传海报，自动将定制多语言文案同步推送至四大核心群：
+                                    <span class="badge badge-info">🇬🇧 English (#16)</span>
+                                    <span class="badge badge-info">🇨🇳 Chinese (#17)</span>
+                                    <span class="badge badge-info">🇰🇷 Korean (#18)</span>
+                                    <span class="badge badge-info">🇻🇳 Vietnamese (#19)</span>
+                                </p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary btn-sm" onclick="promptAddNewCampaign()">
+                                    <span>➕ 新增排期天数/计划</span>
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="loadCampaigns()">
+                                    <span>🔄 刷新排期列表</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Campaigns Container -->
+                        <div id="campaignsContainer" class="mt-3">
+                            <div class="text-center text-muted" style="padding: 20px;">正在加载多天排期计划...</div>
+                        </div>
+                    </div>
+
                     <!-- 7 Task Cards Grid -->
                     <div class="scheduler-cards-grid" id="schedulerCardsContainer">
                         <!-- Populated by JavaScript -->

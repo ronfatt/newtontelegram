@@ -63,19 +63,79 @@ TECH_TOPICS = [
     }
 ]
 
+TECH_TOPICS_EN = [
+    {
+        "title": "Parallel EVM Execution Engine",
+        "tech_title": "PARALLEL EXECUTION & SPEED",
+        "tech_sub": "ENI Enterprise Modular L1 · 1.0s Finality",
+        "tech_desc": "Break free from single-thread bottlenecks with multi-threaded state access, sub-second latency, and tens of thousands of TPS.",
+        "body": "⚡ <b>【ENI Chain Architecture Spotlight: Parallel EVM Engine】</b> ⚡\n\n"
+                "Traditional EVMs suffer from single-threaded sequential execution bottlenecks, leading to congestion and gas spikes.\n\n"
+                "🚀 <b>ENI Mainnet leverages high-performance Parallel Execution:</b>\n"
+                "• Sub-second deterministic blocks (~1.0s finality)\n"
+                "• Dynamic state access analysis enabling conflict-free concurrent transaction settlements\n"
+                "• Low & predictable network fees (~87 Gwei)\n\n"
+                "🌐 Explore on Live Explorer: https://scan.eniac.network\n"
+                "#ENIChain #ParallelEVM #Layer1 #Web3 #Blockchain"
+    },
+    {
+        "title": "Modular L1: Mainnet + Hub + AppChains",
+        "tech_title": "MODULAR L1: HUB & APPCHAINS",
+        "tech_sub": "Customizable AppChains · Shared Security",
+        "tech_desc": "Innovative modular topography empowering enterprise dApps with dedicated application chains and shared root consensus.",
+        "body": "🏛 <b>【ENI Chain Blueprint: Modular Layer-1 Architecture】</b> 🏛\n\n"
+                "One foundational chain, empowering diverse enterprise Web3 ecosystems!\n\n"
+                "💎 <b>ENI Modular Topology:</b>\n"
+                "1️⃣ <b>ENI Mainnet</b>: Core high-security settlement layer\n"
+                "2️⃣ <b>ENI Hub</b>: Trustless cross-chain interoperability & liquidity conduit\n"
+                "3️⃣ <b>AppChains</b>: Dedicated application chains with customizable compute rules\n\n"
+                "Built for millions of real-world enterprise participants!\n"
+                "🔗 Official Portal: https://eniac.network\n"
+                "#ENI #ModularBlockchain #Crypto #Mainnet #ENIChain"
+    },
+    {
+        "title": "On-Chain AI Compute & Newton Agent Protocol",
+        "tech_title": "AI COMPUTE & AGENT PROTOCOL",
+        "tech_sub": "Newton Initiative × ENI Ecosystem",
+        "tech_desc": "Combining verifiable permissions with autonomous smart contracts for AI agent coordination and real-world asset settlement.",
+        "body": "🤖 <b>【ENI × Newton Protocol: Autonomous AI & Policy Engine】</b> 🤖\n\n"
+                "When artificial intelligence meets ultra-high-throughput public blockchain infrastructure:\n\n"
+                "🧠 <b>Key Innovations:</b>\n"
+                "• On-chain autonomous AI Agent execution governed by PolicyEngine\n"
+                "• Decentralized compute scheduling with distributed node validation\n"
+                "• Real-World Asset (RWA) tokenization & sub-second settlement\n\n"
+                "Discover the autonomous digital economy: https://scan.eniac.network\n"
+                "#ENIChain #Newton #AIAgents #Web3AI #RWA"
+    },
+    {
+        "title": "Native Fuel Utility & Deflationary Capture",
+        "tech_title": "NATIVE UTILITY & FUEL",
+        "tech_sub": "EGAS Fuel Mechanism · Value Capture",
+        "tech_desc": "Native utility asset powering all smart contracts, cross-chain relays, and decentralized DEX liquidity.",
+        "body": "⛽ <b>【ENI Chain Economics: Native Fuel & Value Capture】</b> ⛽\n\n"
+                "All smart contract calls, cross-chain relaying, and decentralized operations are powered by native network fuel!\n\n"
+                "🔥 <b>Economic Loop:</b>\n"
+                "• Gas fee consumption & validator staking yields\n"
+                "• DEX liquidity incentives (https://xplan.eniac.network/swap)\n"
+                "• Sustainable value accrual backed by 5.2M+ active on-chain wallets\n\n"
+                "📊 Track live statistics: https://scan.eniac.network\n"
+                "#ENI #EGAS #Tokenomics #DeFi #Crypto"
+    }
+]
+
 class ENIContentGenerator:
     @staticmethod
-    async def generate_morning_post(config: Any) -> Dict[str, Any]:
-        """Slot 1: 晨间【ENI 链上数据实时战报】"""
+    async def generate_morning_post(config: Any, lang: str = "en") -> Dict[str, Any]:
+        """Slot 1: 晨间 09:00【ENI 链上数据实时战报】(默认英文推送至 #General)"""
         stats = await eni_live_tracker.get_live_stats()
         if not stats:
             stats = {
-                "total_blocks": 41545000,
-                "total_txs": 26915000,
-                "active_addresses": 5225000,
+                "total_blocks": 41645000,
+                "total_txs": 26945000,
+                "active_addresses": 5230000,
                 "transactions_today": 25890,
-                "gas_price": 87.0,
-                "block_time": 1.01
+                "gas_price": 94.0,
+                "block_time": 1.04
             }
 
         tot_blocks = stats["total_blocks"]
@@ -84,33 +144,48 @@ class ENIContentGenerator:
         gas = stats["gas_price"]
         b_time = stats["block_time"]
 
-        templates = [
-            f"🌅 <b>【ENI Chain 链上早报 · 实时全网数据】</b>\n\n"
-            f"新的一天，ENI 主网正在高速稳定运行！\n\n"
-            f"🧱 最新区块高度: <b>#{tot_blocks:,}</b>\n"
-            f"📈 累计链上交易: <b>{tot_txs:,}</b> 笔\n"
-            f"👥 独立持币地址: <b>{tot_addrs:,}</b> 个\n"
-            f"⚡ 平均出块速度: <b>{b_time} 秒</b> (并行确定性)\n"
-            f"⛽ 当前平均 Gas: <b>{gas} Gwei</b>\n\n"
-            f"🔍 官方实时浏览器: https://scan.eniac.network\n"
-            f"#ENIChain #ENI #CryptoMorning #Web3 #DailyReport",
+        if lang == "en":
+            templates = [
+                f"🌅 <b>【ENI Chain Daily On-Chain Pulse · Live Network Metrics】</b> 🌅\n\n"
+                f"ENI Mainnet is operating at peak performance with sub-second deterministic finality!\n\n"
+                f"🧱 Current Block Height: <b>#{tot_blocks:,}</b>\n"
+                f"📈 Total On-Chain Transactions: <b>{tot_txs:,}</b>\n"
+                f"👥 Active Wallet Network: <b>{tot_addrs:,}</b> addresses\n"
+                f"⚡ Average Block Time: <b>{b_time}s</b> (Parallel EVM)\n"
+                f"⛽ Network Gas Price: <b>{gas} Gwei</b>\n\n"
+                f"🔍 Live Blockscout Explorer: https://scan.eniac.network\n"
+                f"#ENIChain #NewtonProtocol #Layer1 #Web3 #DailyReport",
 
-            f"📊 <b>【ENI Mainnet 24H 链上数据脉搏】</b>\n\n"
-            f"全球企业级模块化公链生态持续蓬勃扩张！\n\n"
-            f"💎 核心链上指标盘点：\n"
-            f"• 链上总高度: #{tot_blocks:,}\n"
-            f"• 交易吞吐总量: {tot_txs:,} 笔\n"
-            f"• 活跃钱包网络: {tot_addrs:,} 独立地址\n"
-            f"• 网络极速响应: ~{b_time}s / Block\n\n"
-            f"🌐 探索主网数据大盘：https://scan.eniac.network\n"
-            f"#ENIChain #Blockchain #Crypto #MainnetData"
-        ]
+                f"📊 <b>【ENI Mainnet 24H Activity & Ecosystem Pulse】</b> 📊\n\n"
+                f"Global enterprise modular public chain momentum continues to expand!\n\n"
+                f"💎 Key Network Highlights:\n"
+                f"• Total Height: #{tot_blocks:,}\n"
+                f"• Cumulative Volume: {tot_txs:,} transactions\n"
+                f"• Decentralized Network: {tot_addrs:,} active holders\n"
+                f"• Ultra-fast Finality: ~{b_time}s / Block\n\n"
+                f"🌐 Explore Mainnet Analytics: https://scan.eniac.network\n"
+                f"#ENIChain #Blockchain #Crypto #MainnetData"
+            ]
+            title = f"ENI Chain Daily Pulse: #{tot_blocks:,} Blocks"
+        else:
+            templates = [
+                f"🌅 <b>【ENI Chain 链上早报 · 实时全网数据】</b>\n\n"
+                f"新的一天，ENI 主网正在高速稳定运行！\n\n"
+                f"🧱 最新区块高度: <b>#{tot_blocks:,}</b>\n"
+                f"📈 累计链上交易: <b>{tot_txs:,}</b> 笔\n"
+                f"👥 独立持币地址: <b>{tot_addrs:,}</b> 个\n"
+                f"⚡ 平均出块速度: <b>{b_time} 秒</b> (并行确定性)\n"
+                f"⛽ 当前平均 Gas: <b>{gas} Gwei</b>\n\n"
+                f"🔍 官方实时浏览器: https://scan.eniac.network\n"
+                f"#ENIChain #ENI #CryptoMorning #Web3 #DailyReport"
+            ]
+            title = f"ENI Chain 链上早报: #{tot_blocks:,} Blocks"
 
         text = random.choice(templates)
         event_data = {
             "slot": "morning",
             "event_type": "summary",
-            "title": f"ENI Chain 链上早报: #{tot_blocks:,} Blocks",
+            "title": title,
             "content": text,
             "total_blocks": tot_blocks,
             "total_txs": tot_txs,
@@ -124,16 +199,16 @@ class ENIContentGenerator:
         return event_data
 
     @staticmethod
-    async def generate_afternoon_post(config: Any) -> Dict[str, Any]:
-        """Slot 2: 午间【ENI 官网核心技术与愿景深度】"""
-        # Pick a topic
-        idx = int(time.time() // 86400) % len(TECH_TOPICS)
-        topic = TECH_TOPICS[idx]
+    async def generate_afternoon_post(config: Any, lang: str = "en") -> Dict[str, Any]:
+        """Slot 2: 午间 14:00【ENI 核心技术与愿景深度】(默认英文推送至 #General)"""
+        topics = TECH_TOPICS_EN if lang == "en" else TECH_TOPICS
+        idx = int(time.time() // 86400) % len(topics)
+        topic = topics[idx]
 
         event_data = {
             "slot": "afternoon",
             "event_type": "tech",
-            "title": f"ENI 核心技术与愿景: {topic['title']}",
+            "title": f"ENI Architecture Spotlight: {topic['title']}",
             "content": topic["body"],
             "tech_title": topic["tech_title"],
             "tech_sub": topic["tech_sub"],
@@ -144,8 +219,8 @@ class ENIContentGenerator:
         return event_data
 
     @staticmethod
-    async def generate_evening_post(config: Any) -> Dict[str, Any]:
-        """Slot 3: 晚间【ENI 生态交易、DEX 与大额动态】"""
+    async def generate_evening_post(config: Any, lang: str = "en") -> Dict[str, Any]:
+        """Slot 3: 晚间 20:00【ENI 生态交易与流动性速报】(默认英文推送至 #General)"""
         txs = await eni_live_tracker.get_live_transactions(limit=5)
         top_tx = txs[0] if txs else None
 
@@ -154,31 +229,47 @@ class ENIContentGenerator:
             tx_hash = top_tx["tx_hash"]
             from_short = top_tx["from_short"]
             to_short = top_tx["to_short"]
-            block_no = top_tx.get("block_number", 41543000)
+            block_no = top_tx.get("block_number", 41644000)
         else:
             tx_hash = "0x" + "a" * 64
             tx_hash_short = "0x89f2...3b1a"
             from_short = "0x4b21...98ae"
             to_short = "0xd812...44f0"
-            block_no = 41543200
+            block_no = 41644200
 
-        text = (
-            f"🌙 <b>【ENI Chain 晚间生态动态与链上交易速报】</b>\n\n"
-            f"晚间链上交互活跃，生态 DEX 与大额转账正在持续结算！\n\n"
-            f"⚡ 最新主网交互动态：\n"
-            f"• 交易哈希: <code>{tx_hash_short}</code>\n"
-            f"• 发起地址: <code>{from_short}</code>\n"
-            f"• 交互合约: <code>{to_short}</code>\n"
-            f"• 确认区块: #{block_no:,}\n\n"
-            f"🔄 体验生态去中心化兑换: https://xplan.eniac.network/swap\n"
-            f"🔍 链上实时浏览器: https://scan.eniac.network\n\n"
-            f"#ENIChain #ENI #DEX #CryptoTrading #Web3Ecosystem"
-        )
+        if lang == "en":
+            text = (
+                f"🌙 <b>【ENI Chain Evening Ecosystem Pulse & Live Liquidity Brief】</b> 🌙\n\n"
+                f"High on-chain transaction velocity and active decentralized liquidity settlement across ENI Mainnet!\n\n"
+                f"⚡ Latest Verified Mainnet Activity:\n"
+                f"• Tx Hash: <code>{tx_hash_short}</code>\n"
+                f"• Sender Address: <code>{from_short}</code>\n"
+                f"• Interacting Contract: <code>{to_short}</code>\n"
+                f"• Confirmation Block: #{block_no:,}\n\n"
+                f"🔄 Trade on Official DEX: https://xplan.eniac.network/swap\n"
+                f"🔍 Verified Blockscout Explorer: https://scan.eniac.network\n\n"
+                f"#ENIChain #ENI #DEX #CryptoTrading #Web3Ecosystem"
+            )
+            title = f"ENI Evening Ecosystem Brief: Block #{block_no:,}"
+        else:
+            text = (
+                f"🌙 <b>【ENI Chain 晚间生态动态与链上交易速报】</b>\n\n"
+                f"晚间链上交互活跃，生态 DEX 与大额转账正在持续结算！\n\n"
+                f"⚡ 最新主网交互动态：\n"
+                f"• 交易哈希: <code>{tx_hash_short}</code>\n"
+                f"• 发起地址: <code>{from_short}</code>\n"
+                f"• 交互合约: <code>{to_short}</code>\n"
+                f"• 确认区块: #{block_no:,}\n\n"
+                f"🔄 体验生态去中心化兑换: https://xplan.eniac.network/swap\n"
+                f"🔍 链上实时浏览器: https://scan.eniac.network\n\n"
+                f"#ENIChain #ENI #DEX #CryptoTrading #Web3Ecosystem"
+            )
+            title = f"ENI 晚间生态速报: Block #{block_no:,}"
 
         event_data = {
             "slot": "evening",
             "event_type": "whale",
-            "title": f"ENI 晚间生态速报: Block #{block_no:,}",
+            "title": title,
             "content": text,
             "tx_hash": tx_hash,
             "amount": 58800.0,

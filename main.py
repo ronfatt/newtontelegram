@@ -2,7 +2,7 @@ import os
 import json
 import asyncio
 from typing import Dict, Any, Optional, List
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -384,6 +384,139 @@ async def sync_detected_topics_endpoint(req: SyncDetectedTopicsRequest):
         "message": f"成功同步话题：更新 {res['updated']} 个，新增 {res['created']} 个",
         "details": res
     }
+
+# ==========================================
+# 1.5 Multi-Day Campaigns (4 Languages Matrix)
+# ==========================================
+
+class CampaignCreateRequest(BaseModel):
+    day_number: int
+    campaign_title: str
+    scheduled_time: str
+    poster_image: Optional[str] = ""
+    text_zh: Optional[str] = ""
+    text_en: Optional[str] = ""
+    text_ko: Optional[str] = ""
+    text_vi: Optional[str] = ""
+
+class CampaignUpdateRequest(BaseModel):
+    id: int
+    day_number: int
+    campaign_title: str
+    scheduled_time: str
+    poster_image: Optional[str] = ""
+    text_zh: Optional[str] = ""
+    text_en: Optional[str] = ""
+    text_ko: Optional[str] = ""
+    text_vi: Optional[str] = ""
+    status: Optional[str] = "pending"
+
+class CampaignTranslateRequest(BaseModel):
+    text: str
+    source_lang: Optional[str] = "zh"
+
+@app.get("/api/campaigns")
+async def get_campaigns_endpoint():
+    from database import get_all_campaigns
+    campaigns = await get_all_campaigns()
+    return {"campaigns": campaigns}
+
+@app.post("/api/campaigns/create")
+async def create_campaign_endpoint(req: CampaignCreateRequest):
+    from database import add_campaign
+    cid = await add_campaign(
+        day_number=req.day_number,
+        campaign_title=req.campaign_title,
+        scheduled_time=req.scheduled_time,
+        poster_image=req.poster_image or "",
+        text_zh=req.text_zh or "",
+        text_en=req.text_en or "",
+        text_ko=req.text_ko or "",
+        text_vi=req.text_vi or ""
+    )
+    return {"success": True, "id": cid, "message": f"排期计划【{req.campaign_title}】已成功创建"}
+
+@app.post("/api/campaigns/update")
+async def update_campaign_endpoint(req: CampaignUpdateRequest):
+    from database import update_campaign
+    await update_campaign(
+        cid=req.id,
+        day_number=req.day_number,
+        campaign_title=req.campaign_title,
+        scheduled_time=req.scheduled_time,
+        poster_image=req.poster_image or "",
+        text_zh=req.text_zh or "",
+        text_en=req.text_en or "",
+        text_ko=req.text_ko or "",
+        text_vi=req.text_vi or "",
+        status=req.status or "pending"
+    )
+    return {"success": True, "message": "排期计划已成功保存"}
+
+@app.post("/api/campaigns/delete")
+async def delete_campaign_endpoint(req: Dict[str, int]):
+    from database import delete_campaign
+    cid = req.get("id")
+    if not cid:
+        raise HTTPException(status_code=400, detail="缺少 ID")
+    await delete_campaign(cid)
+    return {"success": True, "message": f"计划 #{cid} 已删除"}
+
+@app.post("/api/campaigns/translate")
+async def translate_campaign_endpoint(req: CampaignTranslateRequest):
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="文案不能为空")
+    from services.translator import translate_single_text
+    targets = ["en", "zh", "ko", "vi"]
+    res = {}
+    for lang in targets:
+        if lang == req.source_lang:
+            res[lang] = req.text
+        else:
+            res[lang] = await translate_single_text(req.text, lang)
+    return {"success": True, "translations": res}
+
+@app.get("/api/campaigns/local-posters")
+async def get_local_posters_endpoint():
+    posters_dir = os.path.join(STATIC_DIR, "uploads", "posters")
+    if not os.path.exists(posters_dir):
+        return {"posters": []}
+    files = []
+    for f in os.listdir(posters_dir):
+        if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+            files.append({
+                "filename": f,
+                "url": f"/static/uploads/posters/{f}"
+            })
+    files.sort(key=lambda x: x["filename"])
+    return {"posters": files}
+
+@app.post("/api/campaigns/upload-poster")
+async def upload_poster_endpoint(file: UploadFile = File(...)):
+    posters_dir = os.path.join(STATIC_DIR, "uploads", "posters")
+    os.makedirs(posters_dir, exist_ok=True)
+    import time
+    clean_filename = f"poster_{int(time.time())}_{file.filename}"
+    target_path = os.path.join(posters_dir, clean_filename)
+    with open(target_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+    return {
+        "success": True,
+        "filename": clean_filename,
+        "url": f"/static/uploads/posters/{clean_filename}"
+    }
+
+@app.post("/api/campaigns/trigger")
+async def trigger_campaign_endpoint(req: Dict[str, int]):
+    cid = req.get("id")
+    if not cid:
+        raise HTTPException(status_code=400, detail="缺少计划 ID")
+    try:
+        res = await daily_scheduler.trigger_campaign(cid)
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ==========================================
 # 2. 11-Language Multilingual Broadcast

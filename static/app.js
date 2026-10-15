@@ -14,6 +14,8 @@ async function initApp() {
     setupSSE();
     loadLiveChainData();
     loadTopicBindings();
+    loadDailyGeneralSlots();
+    loadCampaigns();
     loadScheduledTasks();
     loadSchedulerLogs();
     loadSettings();
@@ -49,7 +51,12 @@ function switchTab(tabId) {
 
     // Tab-specific refreshes
     if (tabId === "topics") loadTopicBindings();
-    if (tabId === "scheduler") { loadScheduledTasks(); loadSchedulerLogs(); }
+    if (tabId === "scheduler") { 
+        loadDailyGeneralSlots(); 
+        loadCampaigns(); 
+        loadScheduledTasks(); 
+        loadSchedulerLogs(); 
+    }
     if (tabId === "eni-live") loadLiveChainData();
     if (tabId === "history") loadHistory();
 }
@@ -813,6 +820,360 @@ async function submitDispatchNow() {
         }
     } catch (e) {
         showToast("投递异常: " + e.message, "error");
+    }
+}
+
+// -------------------------------------------------------------
+// Daily #General 3-Slot Automated Posts
+// -------------------------------------------------------------
+async function loadDailyGeneralSlots() {
+    try {
+        const res = await fetch("/api/daily-schedule/status");
+        const data = await res.json();
+        const slots = data.slots || {};
+
+        ["morning", "afternoon", "evening"].forEach(slot => {
+            const badge = document.getElementById(`slotStatus_${slot}`);
+            if (!badge) return;
+            const s = slots[slot];
+            if (s && s.executed) {
+                badge.className = "badge badge-success";
+                badge.textContent = "✅ 今日已发送";
+            } else {
+                badge.className = "badge badge-info";
+                badge.textContent = `⏳ 待执行 (${s ? s.time : '--:--'})`;
+            }
+        });
+    } catch (e) {
+        console.error("loadDailyGeneralSlots error:", e);
+    }
+}
+
+async function triggerDailySlot(slot) {
+    showToast(`正在向 #General 频道生成并派发${slot === 'morning' ? '晨间' : slot === 'afternoon' ? '午间' : '晚间'}英文战报...`, "success");
+    try {
+        const res = await fetch("/api/daily-schedule/trigger", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slot: slot })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`🎉 成功投递至 #General (Thread #${data.thread_id})！Post ID: ${data.post_id}`, "success");
+            loadDailyGeneralSlots();
+            loadHistory();
+        } else {
+            showToast("派发失败: " + (data.detail || data.reason || "未知原因"), "error");
+        }
+    } catch (e) {
+        showToast("请求失败: " + e.message, "error");
+    }
+}
+
+// -------------------------------------------------------------
+// 4 National Languages Multi-Day Campaigns (Day 1, Day 2...)
+// -------------------------------------------------------------
+let allCampaigns = [];
+let localPostersList = [];
+
+async function loadCampaigns() {
+    const container = document.getElementById("campaignsContainer");
+    if (!container) return;
+
+    try {
+        const [cRes, pRes] = await Promise.all([
+            fetch("/api/campaigns"),
+            fetch("/api/campaigns/local-posters")
+        ]);
+        const cData = await cRes.json();
+        const pData = await pRes.json();
+
+        allCampaigns = cData.campaigns || [];
+        localPostersList = pData.posters || [];
+
+        if (allCampaigns.length === 0) {
+            container.innerHTML = `<div class="card text-center text-muted" style="padding: 30px;">暂无排期计划，请点击右上角【➕ 新增排期天数/计划】进行创建！</div>`;
+            return;
+        }
+
+        container.innerHTML = allCampaigns.map(c => `
+            <div class="campaign-card" id="campaignCard_${c.id}">
+                <div class="campaign-header">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span class="campaign-day-pill">🌟 第 ${c.day_number} 天计划</span>
+                        <input type="text" class="form-input" style="font-weight: 700; width: 280px; padding: 4px 8px;" id="cTitle_${c.id}" value="${c.campaign_title || ''}" placeholder="计划主题/标题">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="text-muted" style="font-size: 12px;">⏰ 定时触发:</span>
+                            <input type="text" class="form-input" style="width: 130px; padding: 4px 8px; font-family: monospace;" id="cTime_${c.id}" value="${c.scheduled_time || '10:00'}" placeholder="例如 10:00">
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="badge ${c.status === 'sent' ? 'badge-success' : 'badge-warning'}">
+                            ${c.status === 'sent' ? '✅ 已执行投递' : '⏳ 待自动发送'}
+                        </span>
+                        <button class="btn btn-secondary btn-sm" onclick="saveCampaign(${c.id})">💾 保存修改</button>
+                        <button class="btn btn-primary btn-sm" onclick="triggerCampaignNow(${c.id})">🚀 立即发送4大频道</button>
+                        <button class="btn btn-secondary btn-sm" style="color: var(--crimson);" onclick="deleteCampaign(${c.id})">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="campaign-body-grid">
+                    <!-- Left: Poster Box -->
+                    <div class="campaign-poster-box">
+                        <img src="${c.poster_image || '/static/uploads/posters/1.png'}" id="cPosterImg_${c.id}" class="campaign-poster-preview" alt="海报预览" onerror="this.src='/static/uploads/posters/1.png'">
+                        <select class="select-sm" style="width: 100%; margin-bottom: 8px;" id="cPosterSelect_${c.id}" onchange="changeCampaignPosterSelect(${c.id}, this.value)">
+                            <option value="">-- 选择已有海报 --</option>
+                            ${localPostersList.map(p => `
+                                <option value="${p.url}" ${c.poster_image === p.url ? 'selected' : ''}>${p.filename}</option>
+                            `).join('')}
+                        </select>
+                        <label class="btn btn-secondary btn-sm" style="width: 100%; cursor: pointer;">
+                            <span>📁 上传新海报</span>
+                            <input type="file" accept="image/*" style="display: none;" onchange="uploadPosterForCampaign(${c.id}, this.files[0])">
+                        </label>
+                        <input type="hidden" id="cPosterHidden_${c.id}" value="${c.poster_image || ''}">
+                    </div>
+
+                    <!-- Right: 4 Languages Tab & Copy -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                            <div class="lang-subtabs">
+                                <button class="lang-subtab-btn active" id="tabBtn_${c.id}_zh" onclick="switchCampaignLangTab(${c.id}, 'zh')">🇨🇳 中文 (#17)</button>
+                                <button class="lang-subtab-btn" id="tabBtn_${c.id}_en" onclick="switchCampaignLangTab(${c.id}, 'en')">🇬🇧 English (#16)</button>
+                                <button class="lang-subtab-btn" id="tabBtn_${c.id}_ko" onclick="switchCampaignLangTab(${c.id}, 'ko')">🇰🇷 한국어 (#18)</button>
+                                <button class="lang-subtab-btn" id="tabBtn_${c.id}_vi" onclick="switchCampaignLangTab(${c.id}, 'vi')">🇻🇳 Tiếng Việt (#19)</button>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="autoTranslateCampaign(${c.id})">
+                                <span>🌐 基于当前语言一键生成其余 3 语种</span>
+                            </button>
+                        </div>
+
+                        <!-- Language Textareas -->
+                        <div id="langBox_${c.id}_zh">
+                            <textarea class="form-textarea" rows="6" id="cTextZh_${c.id}" placeholder="🇨🇳 输入中文群 (CHINESE CHAT #17) 的专属文案...">${c.text_zh || ''}</textarea>
+                        </div>
+                        <div id="langBox_${c.id}_en" style="display: none;">
+                            <textarea class="form-textarea" rows="6" id="cTextEn_${c.id}" placeholder="🇬🇧 Enter English chat (ENGLISH CHAT #16) copy...">${c.text_en || ''}</textarea>
+                        </div>
+                        <div id="langBox_${c.id}_ko" style="display: none;">
+                            <textarea class="form-textarea" rows="6" id="cTextKo_${c.id}" placeholder="🇰🇷 한국어 채팅방 (KOREAN CHAT #18) 맞춤 문구...">${c.text_ko || ''}</textarea>
+                        </div>
+                        <div id="langBox_${c.id}_vi" style="display: none;">
+                            <textarea class="form-textarea" rows="6" id="cTextVi_${c.id}" placeholder="🇻🇳 Nhập nội dung kênh tiếng Việt (VIETNAMESE CHAT #19)...">${c.text_vi || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+    } catch (e) {
+        container.innerHTML = `<div class="card text-center text-muted">加载排期计划失败: ${e.message}</div>`;
+    }
+}
+
+function switchCampaignLangTab(cid, activeLang) {
+    ['zh', 'en', 'ko', 'vi'].forEach(l => {
+        const btn = document.getElementById(`tabBtn_${cid}_${l}`);
+        const box = document.getElementById(`langBox_${cid}_${l}`);
+        if (btn) {
+            if (l === activeLang) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+        if (box) {
+            box.style.display = (l === activeLang) ? 'block' : 'none';
+        }
+    });
+}
+
+function changeCampaignPosterSelect(cid, url) {
+    const hidden = document.getElementById(`cPosterHidden_${cid}`);
+    const img = document.getElementById(`cPosterImg_${cid}`);
+    if (hidden) hidden.value = url;
+    if (img && url) img.src = url;
+}
+
+async function uploadPosterForCampaign(cid, file) {
+    if (!file) return;
+    showToast("正在上传海报...", "success");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const res = await fetch("/api/campaigns/upload-poster", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+            changeCampaignPosterSelect(cid, data.url);
+            showToast("海报上传成功！已自动绑定", "success");
+        } else {
+            showToast("上传失败: " + (data.detail || "未知原因"), "error");
+        }
+    } catch (e) {
+        showToast("上传异常: " + e.message, "error");
+    }
+}
+
+async function autoTranslateCampaign(cid) {
+    const zhBox = document.getElementById(`langBox_${cid}_zh`);
+    const enBox = document.getElementById(`langBox_${cid}_en`);
+    let sourceText = "";
+    let sourceLang = "zh";
+
+    const zhVal = document.getElementById(`cTextZh_${cid}`)?.value?.trim() || "";
+    const enVal = document.getElementById(`cTextEn_${cid}`)?.value?.trim() || "";
+
+    if (zhBox && zhBox.style.display !== 'none' && zhVal) {
+        sourceText = zhVal;
+        sourceLang = "zh";
+    } else if (enBox && enBox.style.display !== 'none' && enVal) {
+        sourceText = enVal;
+        sourceLang = "en";
+    } else {
+        sourceText = zhVal || enVal;
+        sourceLang = zhVal ? "zh" : "en";
+    }
+
+    if (!sourceText) {
+        showToast("请先在文案框中输入一段文案，再点击一键翻译", "error");
+        return;
+    }
+
+    showToast("正在通过双通道翻译引擎生成 4 语种定制文案...", "success");
+    try {
+        const res = await fetch("/api/campaigns/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: sourceText, source_lang: sourceLang })
+        });
+        const data = await res.json();
+        if (data.success && data.translations) {
+            const t = data.translations;
+            if (t.zh && document.getElementById(`cTextZh_${cid}`)) document.getElementById(`cTextZh_${cid}`).value = t.zh;
+            if (t.en && document.getElementById(`cTextEn_${cid}`)) document.getElementById(`cTextEn_${cid}`).value = t.en;
+            if (t.ko && document.getElementById(`cTextKo_${cid}`)) document.getElementById(`cTextKo_${cid}`).value = t.ko;
+            if (t.vi && document.getElementById(`cTextVi_${cid}`)) document.getElementById(`cTextVi_${cid}`).value = t.vi;
+            showToast("🎉 4 大语种定制文案已一键生成完毕！", "success");
+        } else {
+            showToast("翻译失败: " + (data.detail || "未知原因"), "error");
+        }
+    } catch (e) {
+        showToast("翻译异常: " + e.message, "error");
+    }
+}
+
+async function saveCampaign(cid) {
+    const title = document.getElementById(`cTitle_${cid}`)?.value?.trim() || "";
+    const time = document.getElementById(`cTime_${cid}`)?.value?.trim() || "10:00";
+    const poster = document.getElementById(`cPosterHidden_${cid}`)?.value?.trim() || "";
+    const textZh = document.getElementById(`cTextZh_${cid}`)?.value || "";
+    const textEn = document.getElementById(`cTextEn_${cid}`)?.value || "";
+    const textKo = document.getElementById(`cTextKo_${cid}`)?.value || "";
+    const textVi = document.getElementById(`cTextVi_${cid}`)?.value || "";
+
+    const c = allCampaigns.find(item => item.id === cid);
+    const dayNo = c ? c.day_number : 1;
+
+    try {
+        const res = await fetch("/api/campaigns/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: cid,
+                day_number: dayNo,
+                campaign_title: title,
+                scheduled_time: time,
+                poster_image: poster,
+                text_zh: textZh,
+                text_en: textEn,
+                text_ko: textKo,
+                text_vi: textVi,
+                status: "pending"
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`第 ${dayNo} 天排期计划已保存！`, "success");
+            loadCampaigns();
+        } else {
+            showToast("保存失败: " + data.detail, "error");
+        }
+    } catch (e) {
+        showToast("保存异常: " + e.message, "error");
+    }
+}
+
+async function triggerCampaignNow(cid) {
+    await saveCampaign(cid);
+    const c = allCampaigns.find(item => item.id === cid);
+    const dayNo = c ? c.day_number : cid;
+
+    if (!confirm(`确认立即将第 ${dayNo} 天计划的内容与海报并发推送到四大核心频道 (English #16, Chinese #17, Korean #18, Vietnamese #19) 吗？`)) {
+        return;
+    }
+
+    showToast(`🚀 正在向 4 大语言频道并发投递第 ${dayNo} 天排期内容...`, "success");
+    try {
+        const res = await fetch("/api/campaigns/trigger", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: cid })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`🎉 第 ${dayNo} 天排期已成功全部送达 4 大语言频道！`, "success");
+            loadCampaigns();
+            loadHistory();
+        } else {
+            showToast("投递失败: " + (data.detail || "未知原因"), "error");
+        }
+    } catch (e) {
+        showToast("触发异常: " + e.message, "error");
+    }
+}
+
+async function deleteCampaign(cid) {
+    if (!confirm(`确定要删除此排期计划吗？`)) return;
+    try {
+        const res = await fetch("/api/campaigns/delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: cid })
+        });
+        const data = await res.json();
+        showToast(data.message || "已删除", "success");
+        loadCampaigns();
+    } catch (e) {
+        showToast("删除失败: " + e.message, "error");
+    }
+}
+
+async function promptAddNewCampaign() {
+    const nextDay = (allCampaigns.length > 0) ? Math.max(...allCampaigns.map(c => c.day_number || 1)) + 1 : 1;
+    const title = prompt(`请输入新排期天数的标题：`, `Day ${nextDay}：牛顿协议深度推介`);
+    if (!title || !title.trim()) return;
+
+    const time = prompt(`请输入每日自动触发时间（24小时制，例如 10:00）：`, "10:00") || "10:00";
+
+    try {
+        const res = await fetch("/api/campaigns/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                day_number: nextDay,
+                campaign_title: title.trim(),
+                scheduled_time: time.trim(),
+                poster_image: `/static/uploads/posters/${(nextDay <= 5) ? nextDay + '.png' : '1.png'}`
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, "success");
+            loadCampaigns();
+        }
+    } catch (e) {
+        showToast("创建计划失败: " + e.message, "error");
     }
 }
 
