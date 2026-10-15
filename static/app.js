@@ -603,10 +603,11 @@ async function testSendToTopic(topicId, threadId, topicName) {
             body: JSON.stringify({ thread_id: actualThreadId, text: testMsg })
         });
         const data = await res.json();
-        if (data.success) {
-            showToast(`已向话题 [${actualName}] 发送测试消息成功！Msg ID: ${data.result.message_id}`, "success");
+        if (res.ok && data.success) {
+            showToast(`已向话题 [${actualName}] 发送测试消息成功！Msg ID: ${data.result?.message_id}`, "success");
         } else {
-            showToast("发送失败: " + (data.result.error || "未知原因"), "error");
+            const errMsg = data.detail || data.error || (data.result && data.result.error) || "未知错误";
+            showToast(`发送失败: ${errMsg}`, "error");
         }
     } catch (e) {
         showToast("直发测试异常: " + e.message, "error");
