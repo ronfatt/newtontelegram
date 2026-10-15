@@ -6,19 +6,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Supported 11 national languages for Telegram multi-language supergroup
+# Supported national languages for Telegram multi-language supergroup
 SUPPORTED_LANGUAGES = {
-    "en": {"name": "English", "native": "English", "flag": "🇬🇧", "default_thread_id": 33},
-    "zh": {"name": "Chinese", "native": "简体中文", "flag": "🇨🇳", "default_thread_id": 34},
-    "ar": {"name": "Arabic", "native": "العربية", "flag": "🇸🇦", "default_thread_id": 43},
-    "pt": {"name": "Portuguese", "native": "Português", "flag": "🇧🇷", "default_thread_id": 42},
-    "es": {"name": "Spanish", "native": "Español", "flag": "🇪🇸", "default_thread_id": 41},
-    "ms": {"name": "Malay", "native": "Bahasa Melayu", "flag": "🇲🇾", "default_thread_id": 40},
-    "id": {"name": "Indonesian", "native": "Bahasa Indonesia", "flag": "🇮🇩", "default_thread_id": 39},
-    "th": {"name": "Thai", "native": "ภาษาไทย", "flag": "🇹🇭", "default_thread_id": 38},
-    "vi": {"name": "Vietnamese", "native": "Tiếng Việt", "flag": "🇻🇳", "default_thread_id": 37},
-    "ja": {"name": "Japanese", "native": "日本語", "flag": "🇯🇵", "default_thread_id": 36},
-    "ko": {"name": "Korean", "native": "한국어", "flag": "🇰🇷", "default_thread_id": 35},
+    "en": {"name": "English", "native": "English", "flag": "🇬🇧", "default_thread_id": 16},
+    "zh": {"name": "Chinese", "native": "简体中文", "flag": "🇨🇳", "default_thread_id": 17},
+    "ko": {"name": "Korean", "native": "한국어", "flag": "🇰🇷", "default_thread_id": 18},
+    "vi": {"name": "Vietnamese", "native": "Tiếng Việt", "flag": "🇻🇳", "default_thread_id": 19},
+    "ja": {"name": "Japanese", "native": "日本語", "flag": "🇯🇵", "default_thread_id": 16},
+    "th": {"name": "Thai", "native": "ภาษาไทย", "flag": "🇹🇭", "default_thread_id": 16},
+    "id": {"name": "Indonesian", "native": "Bahasa Indonesia", "flag": "🇮🇩", "default_thread_id": 16},
+    "ms": {"name": "Malay", "native": "Bahasa Melayu", "flag": "🇲🇾", "default_thread_id": 16},
+    "es": {"name": "Spanish", "native": "Español", "flag": "🇪🇸", "default_thread_id": 16},
+    "pt": {"name": "Portuguese", "native": "Português", "flag": "🇧🇷", "default_thread_id": 16},
+    "ar": {"name": "Arabic", "native": "العربية", "flag": "🇸🇦", "default_thread_id": 16},
 }
 
 LANG_MAP = {

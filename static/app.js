@@ -317,20 +317,13 @@ async function publishTweetNow() {
 }
 
 // -------------------------------------------------------------
-// TAB 2: 11-LANGUAGE MULTILINGUAL BROADCAST (Image 5 Ref)
+// TAB 2: 4-LANGUAGE MULTILINGUAL BROADCAST (Real Topics)
 // -------------------------------------------------------------
 const MULTI_LANGS = [
-    { code: "en", name: "English", flag: "🇬🇧", thread: 33 },
-    { code: "zh", name: "简体中文", flag: "🇨🇳", thread: 34 },
-    { code: "ko", name: "한국어", flag: "🇰🇷", thread: 35 },
-    { code: "ja", name: "日本語", flag: "🇯🇵", thread: 36 },
-    { code: "vi", name: "Tiếng Việt", flag: "🇻🇳", thread: 37 },
-    { code: "th", name: "ภาษาไทย", flag: "🇹🇭", thread: 38 },
-    { code: "id", name: "Bahasa Indonesia", flag: "🇮🇩", thread: 39 },
-    { code: "ms", name: "Bahasa Melayu", flag: "🇲🇾", thread: 40 },
-    { code: "es", name: "Español", flag: "🇪🇸", thread: 41 },
-    { code: "pt", name: "Português", flag: "🇧🇷", thread: 42 },
-    { code: "ar", name: "العربية", flag: "🇸🇦", thread: 43 }
+    { code: "en", name: "English", flag: "🇬🇧", thread: 16 },
+    { code: "zh", name: "简体中文", flag: "🇨🇳", thread: 17 },
+    { code: "ko", name: "한국어", flag: "🇰🇷", thread: 18 },
+    { code: "vi", name: "Tiếng Việt", flag: "🇻🇳", thread: 19 }
 ];
 
 function renderMultilingualPills() {
@@ -366,7 +359,7 @@ async function generate11LanguagePreview() {
     const container = document.getElementById("countryCardsContainer");
     const header = document.getElementById("multiPreviewHeader");
     header.style.display = "flex";
-    container.innerHTML = `<div class="card text-center text-muted" style="grid-column: 1/-1; padding: 40px;">⏳ 正在调用翻译引擎并发生成 11 国母语卡片 (Google Web 翻译中)...</div>`;
+    container.innerHTML = `<div class="card text-center text-muted" style="grid-column: 1/-1; padding: 40px;">⏳ 正在调用翻译引擎并发生成 4 国语言母语卡片 (Google Web 翻译中)...</div>`;
 
     try {
         const res = await fetch("/api/multilingual/preview", {
@@ -381,7 +374,7 @@ async function generate11LanguagePreview() {
 
         generatedCardsData = data.cards || [];
         renderCountryCards(generatedCardsData);
-        showToast(`✅ 成功生成 11 国语言翻译卡片！可点击下方一键广播`, "success");
+        showToast(`✅ 成功生成 4 国语言翻译卡片！可点击下方一键广播`, "success");
     } catch (e) {
         container.innerHTML = `<div class="card text-center" style="grid-column: 1/-1; color: var(--crimson);">生成失败: ${e.message}</div>`;
         showToast(e.message, "error");
@@ -406,7 +399,7 @@ function renderCountryCards(cards) {
                     ${c.status === 'sent' ? '已投递成功' : '就绪待广播'}
                 </span>
                 <button class="btn btn-secondary btn-sm" onclick="sendSingleLanguage('${c.lang}')">
-                    <span>单发此国</span>
+                    <span>单发此群</span>
                 </button>
             </div>
         </div>
@@ -422,7 +415,7 @@ async function broadcastAll11Languages() {
 
     const btn = document.getElementById("btnBroadcastAllLangs");
     btn.disabled = true;
-    btn.innerHTML = `<span>⏳ 正在并发广播到 11 个国家话题 Thread...</span>`;
+    btn.innerHTML = `<span>⏳ 正在并发广播到 4 大语言话题 Thread...</span>`;
 
     try {
         const res = await fetch("/api/multilingual/broadcast", {
@@ -489,6 +482,28 @@ async function sendSingleLanguage(lang) {
 // -------------------------------------------------------------
 // TAB 3: TOPIC BINDINGS & CHANNELS (Image 2 Ref)
 // -------------------------------------------------------------
+function syncAllTopicDropdowns(topics) {
+    if (!topics || topics.length === 0) return;
+    const selects = [
+        document.getElementById("selectSyncThread"),
+        document.getElementById("dispatchTgThreadSelect")
+    ];
+    selects.forEach(sel => {
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = topics.map(t => `
+            <option value="${t.thread_id}">
+                ${t.topic_name} (#${t.thread_id})
+            </option>
+        `).join("");
+        if (topics.some(t => String(t.thread_id) === String(currentVal))) {
+            sel.value = currentVal;
+        } else if (topics.some(t => t.thread_id === 1)) {
+            sel.value = "1";
+        }
+    });
+}
+
 async function loadTopicBindings() {
     const container = document.getElementById("topicsTablesContainer");
     if (!container) return;
@@ -497,6 +512,7 @@ async function loadTopicBindings() {
         const res = await fetch("/api/topics");
         const data = await res.json();
         allTopicList = data.topics || [];
+        syncAllTopicDropdowns(allTopicList);
         const grouped = data.grouped || {};
 
         let html = "";

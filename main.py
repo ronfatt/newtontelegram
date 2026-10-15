@@ -544,8 +544,10 @@ async def multilingual_preview_endpoint(req: MultilingualPreviewRequest):
     }
 
     cards = []
-    for code, meta in SUPPORTED_LANGUAGES.items():
-        if req.langs and code not in req.langs:
+    active_langs = req.langs if req.langs else ["en", "zh", "ko", "vi"]
+    for code in active_langs:
+        meta = SUPPORTED_LANGUAGES.get(code)
+        if not meta:
             continue
         cards.append({
             "lang": code,
@@ -564,10 +566,11 @@ async def multilingual_broadcast_endpoint(req: MultilingualBroadcastRequest):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="广播文案不能为空")
 
+    target_langs = req.langs or ["en", "zh", "ko", "vi"]
     res = await topic_manager.broadcast_multilingual(
         source_text=req.text,
         image_path=req.image_path,
-        target_langs=req.langs
+        target_langs=target_langs
     )
     return {"success": True, "broadcast": res}
 
@@ -578,7 +581,7 @@ async def multilingual_broadcast_endpoint(req: MultilingualBroadcastRequest):
 class ResearchDispatchRequest(BaseModel):
     title: str
     content: str
-    target_thread_id: Optional[int] = 5
+    target_thread_id: Optional[int] = 1
     send_to_telegram: bool = True
     send_to_twitter: bool = False
     image_path: Optional[str] = None

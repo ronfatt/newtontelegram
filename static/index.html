@@ -58,7 +58,7 @@
                         <span class="nav-icon">📢</span> 推特矩阵运营发文
                     </button>
                     <button class="nav-item" onclick="switchTab('multilingual')">
-                        <span class="nav-icon">🌐</span> 11国语言一键广播
+                        <span class="nav-icon">🌐</span> 4国语言一键广播
                     </button>
                     <button class="nav-item" onclick="switchTab('topics')">
                         <span class="nav-icon">💬</span> 全社区板块 & 话题绑定
@@ -87,7 +87,7 @@
                             <span class="acc-name">@eni_newton</span>
                             <span class="acc-badge">已授权</span>
                         </div>
-                        <div class="acc-sub">Telegram 29话题矩阵就绪</div>
+                        <div class="acc-sub">Telegram 11话题专属矩阵就绪</div>
                     </div>
                 </div>
             </aside>
@@ -200,10 +200,17 @@
                                             <span>同步推送到 Telegram 话题:</span>
                                         </label>
                                         <select id="selectSyncThread" class="select-sm">
-                                            <option value="5">🤖 ENI AI (#5)</option>
-                                            <option value="1">💬 GENERAL CHAT (#1)</option>
-                                            <option value="2">📢 ANNOUNCEMENTS (#2)</option>
-                                            <option value="7">🪙 GOLD MARKET (#7)</option>
+                                            <option value="1" selected>💬 # General (#1) - 综合大厅</option>
+                                            <option value="16">🗣️ 🇬🇧 ENGLISH CHAT (#16)</option>
+                                            <option value="17">🗣️ 🇨🇳 CHINESE CHAT (#17)</option>
+                                            <option value="18">🗣️ KOREAN CHAT (#18)</option>
+                                            <option value="19">🗣️ 🇻🇳 VIETNAMESE CHAT (#19)</option>
+                                            <option value="13">✅ START HERE (#13)</option>
+                                            <option value="12">📝 ABOUT NEWTON PROTOCOL (#12)</option>
+                                            <option value="32">🎬 VIDEO CENTRE (#32)</option>
+                                            <option value="31">📣 MARKETING TOOLS (#31)</option>
+                                            <option value="15">🎉 REWARDS AND BENEFITS (#15)</option>
+                                            <option value="14">❤️ NEWTON PROTOCOL CHARITY (#14)</option>
                                         </select>
                                     </div>
                                 </div>
@@ -284,19 +291,19 @@
                 </section>
 
                 <!-- ======================================================== -->
-                <!-- TAB 2: 11-LANGUAGE MULTILINGUAL BROADCAST (Image 5 Ref)  -->
+                <!-- TAB 2: 4-LANGUAGE MULTILINGUAL BROADCAST (Real Topics)   -->
                 <!-- ======================================================== -->
                 <section id="tab-multilingual" class="tab-pane">
                     <div class="pane-header">
                         <div>
-                            <h2>🌐 11国语言国家频道一键广播 (11-Language National Broadcast)</h2>
-                            <p class="subtext">支持在中英文母版草稿输入后，全自动高保真翻译并并发投递到 Telegram 超级群各国家语言话题 Thread ID 中。</p>
+                            <h2>🌐 4国语言社群一键广播 (4-Language Community Broadcast)</h2>
+                            <p class="subtext">支持在中英文母版草稿输入后，全自动高保真翻译并并发投递到 @Newton_International 4大语言超级群话题（英语 #16 / 中文 #17 / 韩语 #18 / 越南语 #19）。</p>
                         </div>
                     </div>
 
-                    <!-- Top 11 Flag Topic Pills -->
+                    <!-- Top 4 Flag Topic Pills -->
                     <div class="flag-pills-bar" id="multilingualPillsBar">
-                        <!-- Filled dynamically: 🇬🇧 #33, 🇨🇳 #34, 🇸🇦 #43, etc. -->
+                        <!-- Filled dynamically: 🇬🇧 #16, 🇨🇳 #17, 🇰🇷 #18, 🇻🇳 #19 -->
                     </div>
 
                     <!-- Draft Box -->
@@ -322,29 +329,29 @@
 
                         <div class="broadcast-draft-footer">
                             <div class="draft-left-meta">
-                                <span>目标范围: 11 国语言官方超级群话题 (#33 ~ #43)</span>
+                                <span>目标范围: 4 国语言官方超级群话题 (#16, #17, #18, #19)</span>
                             </div>
                             <div class="draft-right-actions">
                                 <button class="btn btn-secondary" onclick="loadSampleAnnouncement()">
                                     <span>📝 载入官方升级公告范本</span>
                                 </button>
                                 <button class="btn btn-primary" onclick="generate11LanguagePreview()">
-                                    <span>⚡ 生成 11 国卡片预览 & 一键投递</span>
+                                    <span>⚡ 生成 4 国卡片预览 & 一键投递</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 11 Country Preview Grid -->
+                    <!-- 4 Country Preview Grid -->
                     <div class="multilingual-results-header" id="multiPreviewHeader" style="display: none;">
-                        <h3>11 国语言卡片预览 (就绪状态)</h3>
+                        <h3>4 国语言卡片预览 (就绪状态)</h3>
                         <button class="btn btn-success btn-lg" id="btnBroadcastAllLangs" onclick="broadcastAll11Languages()">
-                            <span>🚀 一键广播到 Telegram 11个国家话题</span>
+                            <span>🚀 一键广播到 Telegram 4大语言话题</span>
                         </button>
                     </div>
 
                     <div class="country-cards-grid" id="countryCardsContainer">
-                        <!-- Populated by JavaScript with 11 cards -->
+                        <!-- Populated by JavaScript with 4 cards -->
                     </div>
                 </section>
 
@@ -551,12 +558,17 @@
                                             <strong>定向推送至 Telegram 话题:</strong>
                                         </label>
                                         <select id="dispatchTgThreadSelect" class="select-sm">
-                                            <option value="5">🤖 ENI AI (#5) - 核心投研中心</option>
-                                            <option value="7">🪙 GOLD MARKET (#7) - 黄金与宏观</option>
-                                            <option value="8">📈 GLOBAL MARKETS (#8) - 全球市场</option>
-                                            <option value="1">💬 GENERAL CHAT (#1) - 综合大厅</option>
-                                            <option value="10">🧠 AI AGENT & RWA (#10)</option>
-                                            <option value="11">🐳 WHALE ALERTS (#11)</option>
+                                            <option value="1" selected>💬 # General (#1) - 综合大厅</option>
+                                            <option value="16">🗣️ 🇬🇧 ENGLISH CHAT (#16) - 英文讨论群</option>
+                                            <option value="17">🗣️ 🇨🇳 CHINESE CHAT (#17) - 中文讨论群</option>
+                                            <option value="18">🗣️ KOREAN CHAT (#18) - 韩文讨论群</option>
+                                            <option value="19">🗣️ 🇻🇳 VIETNAMESE CHAT (#19) - 越南语讨论群</option>
+                                            <option value="13">✅ START HERE (#13) - 入门指引</option>
+                                            <option value="12">📝 ABOUT NEWTON PROTOCOL (#12) - 关于牛顿协议</option>
+                                            <option value="32">🎬 VIDEO CENTRE (#32) - 视频中心</option>
+                                            <option value="31">📣 MARKETING TOOLS (#31) - 营销工具</option>
+                                            <option value="15">🎉 REWARDS AND BENEFITS (#15) - 奖励与福利</option>
+                                            <option value="14">❤️ NEWTON PROTOCOL CHARITY (#14) - 慈善公益</option>
                                         </select>
                                     </div>
 

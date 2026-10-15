@@ -60,7 +60,7 @@ class ResearchDesk:
                 f"🔗 探索节点网络: scan.eniac.network\n"
                 f"#ENI #NewtonProtocol #Layer1 #ParallelEVM #Crypto"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 5}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
         # 2. ENI 早报 / 每日生态脉搏 (Daily Morning Pulse)
         elif desk_type == "daily":
@@ -86,7 +86,7 @@ class ResearchDesk:
                 f"官网探索: scan.eniac.network\n"
                 f"#ENIChain #Web3 #DailyReport #Blockchain"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 5}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
         # 3. 底层技术架构解构 (Architecture Deconstruction)
         elif desk_type == "architecture":
@@ -117,7 +117,7 @@ class ResearchDesk:
                 f"技术文档与源码研读: scan.eniac.network\n"
                 f"#ENI #TechArchitecture #ParallelExecution #ModularL1"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 5}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
         # 4. AI Agent 与 RWA 创新 (AI Agent & RWA Innovation)
         elif desk_type == "ai_rwa":
@@ -143,7 +143,7 @@ class ResearchDesk:
                 f"加入开发者计划: scan.eniac.network\n"
                 f"#AIAgent #RWA #DeFi #NewtonProtocol #ENI"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 10}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
         # 5. 链上异动与风险提示 (On-Chain Anomaly & Risk Alert)
         elif desk_type == "risk":
@@ -160,7 +160,7 @@ class ResearchDesk:
                 f"3. 交互未知合约前请仔细核对合约地址，谨防钓鱼授权签名。\n\n"
                 f"#SecurityAlert #ENI #SafeTrading"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 11}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
         # 6. 顶级投资哲学与金句 (Web3 Investment Philosophy & Quotes)
         else:
@@ -180,6 +180,6 @@ class ResearchDesk:
                 f"全网见证: {stats['total_blocks']} 个区块稳定出块中。\n\n"
                 f"#Web3Wisdom #CryptoMindset #ENI #NewtonProtocol"
             )
-            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 5}
+            return {"desk": desk_type, "title": title, "content": text, "target_thread_id": 1}
 
 research_desk = ResearchDesk()

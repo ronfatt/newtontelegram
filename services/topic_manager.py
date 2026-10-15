@@ -59,13 +59,12 @@ class TopicManager:
         all_topics = await get_all_topic_bindings()
         lang_to_thread = {}
         for t in all_topics:
-            if t.get("category") == "11国语言国家频道" and t.get("enabled"):
+            if t.get("enabled") and t.get("lang_code") in ("en", "zh", "ko", "vi"):
                 lang = t.get("lang_code")
-                if lang:
-                    lang_to_thread[lang] = {
-                        "thread_id": t.get("thread_id"),
-                        "name": t.get("topic_name")
-                    }
+                lang_to_thread[lang] = {
+                    "thread_id": t.get("thread_id"),
+                    "name": t.get("topic_name")
+                }
 
         # 2. Translate text
         langs_to_send = target_langs or list(lang_to_thread.keys())
