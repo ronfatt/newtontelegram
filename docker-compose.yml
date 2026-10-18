@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  newton-telegram:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./platform.db:/app/platform.db
+      - ./static/uploads:/app/static/uploads
+      - ./generated_images:/app/generated_images
+    environment:
+      - TELEGRAM_BOT_TOKEN=8839374237:AAEFdFgmF07h-M9PBwr5bXALibAo3-CRGGY
+      - TELEGRAM_CHAT_ID=-1004381922114

@@ -33,8 +33,8 @@ class AlertThresholds(BaseModel):
 
 class TelegramSettings(BaseModel):
     enabled: bool = Field(default=False)
-    bot_token: str = Field(default="", description="Telegram Bot API Token (from @BotFather)")
-    chat_id: str = Field(default="", description="Target Chat ID or Channel (@channel_name or -100xxx)")
+    bot_token: str = Field(default_factory=lambda: os.environ.get("TELEGRAM_BOT_TOKEN", "8839374237:AAEFdFgmF07h-M9PBwr5bXALibAo3-CRGGY"), description="Telegram Bot API Token (from @BotFather)")
+    chat_id: str = Field(default_factory=lambda: os.environ.get("TELEGRAM_CHAT_ID", "-1004381922114"), description="Target Chat ID or Channel (@channel_name or -100xxx)")
     thread_id: Optional[str] = Field(default="", description="Optional Message Thread ID for forum groups")
     send_images: bool = Field(default=True, description="Generate and attach visual alert card")
     include_buttons: bool = Field(default=True, description="Include explorer / swap inline buttons")
@@ -132,6 +132,13 @@ class AppConfig(BaseModel):
     server_host: str = Field(default="0.0.0.0")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "platform.db")
-IMAGES_DIR = os.path.join(BASE_DIR, "generated_images")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+IS_VERCEL = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+if IS_VERCEL:
+    DB_PATH = "/tmp/platform.db"
+    IMAGES_DIR = "/tmp/generated_images"
+    STATIC_DIR = os.path.join(BASE_DIR, "static")
+else:
+    DB_PATH = os.path.join(BASE_DIR, "platform.db")
+    IMAGES_DIR = os.path.join(BASE_DIR, "generated_images")
+    STATIC_DIR = os.path.join(BASE_DIR, "static")

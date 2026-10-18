@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/trigger/morning",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/trigger/afternoon",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/trigger/evening",
+      "schedule": "0 12 * * *"
+    }
+  ]
+}

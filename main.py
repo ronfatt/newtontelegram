@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, Fil
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from config import AppConfig, IMAGES_DIR, STATIC_DIR
+from config import AppConfig, IMAGES_DIR, STATIC_DIR, IS_VERCEL
 from database import (
     init_db, get_app_config, save_app_config,
     get_recent_posts, get_platform_metrics,
@@ -55,16 +55,20 @@ async def on_new_event(event_data: Dict[str, Any]):
 async def startup_event():
     await init_db()
     alert_engine.subscribe(on_new_event)
-    eni_watcher.start()
-    daily_scheduler.start()
-    scheduled_tasks_manager.start()
-    print("[Platform] Super Console initialized: 11-Lang Broadcast, 29 Topics, 6 Research Desks & Scheduler running.")
+    if not IS_VERCEL:
+        eni_watcher.start()
+        daily_scheduler.start()
+        scheduled_tasks_manager.start()
+        print("[Platform] Super Console initialized: Background loops running.")
+    else:
+        print("[Platform] Running in Serverless mode (Vercel): Background loops disabled, triggers active.")
 
 @app.on_event("shutdown")
 def shutdown_event():
-    scheduled_tasks_manager.stop()
-    daily_scheduler.stop()
-    eni_watcher.stop()
+    if not IS_VERCEL:
+        scheduled_tasks_manager.stop()
+        daily_scheduler.stop()
+        eni_watcher.stop()
     alert_engine.unsubscribe(on_new_event)
 
 @app.get("/api/status")
@@ -707,7 +711,39 @@ async def publish_tweet_endpoint(req: TwitterPublishRequest):
         "telegram_sync": tg_res
     }
 
-app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
+# ==========================================
+# 7. Vercel & Cloud Cron Trigger Endpoints
+# ==========================================
+
+@app.get("/api/cron/trigger/{slot}")
+async def cron_trigger_slot_endpoint(slot: str):
+    """
+    Trigger morning / afternoon / evening post via HTTP GET (compatible with Vercel Cron & Uptime Monitors)
+    """
+    try:
+        res = await daily_scheduler.trigger_slot(slot, force=True)
+        return {"success": True, "result": res}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/cron/trigger-task/{task_id}")
+async def cron_trigger_task_endpoint(task_id: str):
+    """
+    Trigger a specific scheduled task by ID via HTTP GET
+    """
+    try:
+        res = await scheduled_tasks_manager.execute_task_now(task_id)
+        return {"success": True, "result": res}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+try:
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+except Exception:
+    pass
+
+if os.path.exists(IMAGES_DIR):
+    app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

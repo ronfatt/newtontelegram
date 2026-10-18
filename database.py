@@ -1,10 +1,19 @@
+import os
 import json
 import re
+import shutil
 import aiosqlite
 from typing import Optional, Dict, Any, List
-from config import DB_PATH, AppConfig
+from config import DB_PATH, BASE_DIR, IS_VERCEL, AppConfig
 
 async def init_db():
+    if IS_VERCEL:
+        seed_db = os.path.join(BASE_DIR, "platform.db")
+        if not os.path.exists(DB_PATH) and os.path.exists(seed_db):
+            try:
+                shutil.copyfile(seed_db, DB_PATH)
+            except Exception as e:
+                print(f"[Vercel] Seed db copy skipped: {e}")
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS settings (

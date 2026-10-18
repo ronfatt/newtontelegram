@@ -5,7 +5,10 @@ from typing import Optional, Dict, Any
 from PIL import Image, ImageDraw, ImageFont
 from config import IMAGES_DIR
 
-os.makedirs(IMAGES_DIR, exist_ok=True)
+try:
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+except Exception:
+    pass
 
 FONT_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Arial.ttf",
