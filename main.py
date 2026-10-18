@@ -747,8 +747,24 @@ async def ensure_db_ready():
 
 @app.middleware("http")
 async def db_ensure_middleware(request: Request, call_next):
-    await ensure_db_ready()
-    return await call_next(request)
+    try:
+        await ensure_db_ready()
+    except Exception as e:
+        print(f"[Middleware] DB init exception: {e}")
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as exc:
+        import traceback
+        err_tb = traceback.format_exc()
+        print(f"[Middleware] Request exception: {err_tb}")
+        return HTMLResponse(
+            f"<html><body style='background:#0d1117;color:#c9d1d9;font-family:sans-serif;padding:32px;'>"
+            f"<h2 style='color:#f85149;'>⚠️ Newton Platform Request Error</h2>"
+            f"<pre style='background:#161b22;padding:16px;border-radius:6px;overflow:auto;color:#ff7b72;border:1px solid #30363d;'>{err_tb}</pre>"
+            f"</body></html>",
+            status_code=500
+        )
 
 try:
     os.makedirs(IMAGES_DIR, exist_ok=True)

@@ -132,7 +132,21 @@ class AppConfig(BaseModel):
     server_host: str = Field(default="0.0.0.0")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-IS_VERCEL = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+def _is_serverless_env() -> bool:
+    for k in ("VERCEL", "VERCEL_ENV", "VERCEL_REGION", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"):
+        if os.environ.get(k):
+            return True
+    try:
+        test_file = os.path.join(BASE_DIR, f".write_test_{os.getpid()}")
+        with open(test_file, "w") as f:
+            f.write("1")
+        os.remove(test_file)
+        return False
+    except Exception:
+        return True
+
+IS_VERCEL = _is_serverless_env()
 
 if IS_VERCEL:
     DB_PATH = "/tmp/platform.db"
