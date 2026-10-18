@@ -737,27 +737,67 @@ async def cron_trigger_task_endpoint(task_id: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+_db_initialized = False
+
+async def ensure_db_ready():
+    global _db_initialized
+    if not _db_initialized:
+        await init_db()
+        _db_initialized = True
+
+@app.middleware("http")
+async def db_ensure_middleware(request: Request, call_next):
+    await ensure_db_ready()
+    return await call_next(request)
+
 try:
     os.makedirs(IMAGES_DIR, exist_ok=True)
 except Exception:
     pass
 
-if os.path.exists(IMAGES_DIR):
-    app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
-
-if os.path.exists(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    index_file = os.path.join(STATIC_DIR, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file, headers={
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache",
-            "Expires": "0"
-        })
-    return HTMLResponse("<h1>ENI Automation Platform Backend Running</h1>")
+    candidates = [
+        os.path.join(STATIC_DIR, "index.html"),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "static", "index.html")),
+        os.path.abspath("static/index.html"),
+        "/var/task/static/index.html"
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read(), status_code=200, headers={
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0"
+                })
+    return HTMLResponse("<h1>Newton Telegram Operations Platform Backend Running</h1>")
+
+@app.get("/static/{file_path:path}")
+async def serve_static_file(file_path: str):
+    candidates = [
+        os.path.join(STATIC_DIR, file_path),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "static", file_path)),
+        os.path.abspath(os.path.join("static", file_path)),
+        os.path.join("/var/task/static", file_path)
+    ]
+    for p in candidates:
+        if os.path.exists(p) and os.path.isfile(p):
+            media_type = "text/plain"
+            if p.endswith(".css"):
+                media_type = "text/css"
+            elif p.endswith(".js"):
+                media_type = "application/javascript"
+            elif p.endswith(".html"):
+                media_type = "text/html"
+            elif p.endswith(".json"):
+                media_type = "application/json"
+            elif p.endswith((".png", ".jpg", ".jpeg")):
+                with open(p, "rb") as bf:
+                    return Response(content=bf.read(), media_type="image/png")
+            with open(p, "r", encoding="utf-8", errors="ignore") as f:
+                return Response(content=f.read(), media_type=media_type)
+    raise HTTPException(status_code=404, detail="Static file not found")
 
 if __name__ == "__main__":
     import uvicorn
