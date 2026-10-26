@@ -140,6 +140,10 @@ class TelegramPublisher:
         async with httpx.AsyncClient(timeout=30.0) as client:
             for attempt in range(retry_count):
                 try:
+                    # In Telegram forum supergroups, # General is the root topic (omitting message_thread_id routes to # General)
+                    clean_tid = str(thread_id).strip() if thread_id is not None else ""
+                    use_tid = clean_tid if clean_tid and clean_tid not in ["0", "1"] else None
+
                     if image_path and os.path.exists(image_path):
                         url = f"{cls.BASE_URL}{bot_token}/sendPhoto"
                         data = {
@@ -147,8 +151,8 @@ class TelegramPublisher:
                             "caption": text,
                             "parse_mode": parse_mode
                         }
-                        if thread_id and str(thread_id).strip() and str(thread_id).strip() != "0":
-                            data["message_thread_id"] = str(thread_id).strip()
+                        if use_tid:
+                            data["message_thread_id"] = use_tid
                         if reply_markup:
                             data["reply_markup"] = reply_markup
 
@@ -163,8 +167,8 @@ class TelegramPublisher:
                             "parse_mode": parse_mode,
                             "disable_web_page_preview": False
                         }
-                        if thread_id and str(thread_id).strip() and str(thread_id).strip() != "0":
-                            payload["message_thread_id"] = str(thread_id).strip()
+                        if use_tid:
+                            payload["message_thread_id"] = use_tid
                         if reply_markup:
                             payload["reply_markup"] = reply_markup
 
@@ -183,7 +187,14 @@ class TelegramPublisher:
                         await asyncio.sleep(retry_after + 0.5)
                         continue
 
-                    # 2. 如果是 parse_mode 报错，自动降级为纯文本重试
+                    # 2. 如果是 message thread not found，自动降级为 root/General topic 重试
+                    if "message thread not found" in err_desc.lower():
+                        logger.warning("Telegram message_thread_id 不存在，降级为默认/General 话题重试...")
+                        use_tid = None
+                        thread_id = None
+                        continue
+
+                    # 3. 如果是 parse_mode 报错，自动降级为纯文本重试
                     if "can't parse entities" in err_desc.lower():
                         logger.warning(f"Telegram HTML 解析实体失败，自动降级为纯文本重发...")
                         if image_path and os.path.exists(image_path):

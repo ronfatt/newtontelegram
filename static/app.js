@@ -840,7 +840,7 @@ async function submitDispatchNow() {
 }
 
 // -------------------------------------------------------------
-// Daily #General 3-Slot Automated Posts
+// Daily #General 2-Slot Automated Posts (Real On-Chain Data)
 // -------------------------------------------------------------
 async function loadDailyGeneralSlots() {
     try {
@@ -848,7 +848,7 @@ async function loadDailyGeneralSlots() {
         const data = await res.json();
         const slots = data.slots || {};
 
-        ["morning", "afternoon", "evening"].forEach(slot => {
+        ["morning", "evening"].forEach(slot => {
             const badge = document.getElementById(`slotStatus_${slot}`);
             if (!badge) return;
             const s = slots[slot];
@@ -866,7 +866,7 @@ async function loadDailyGeneralSlots() {
 }
 
 async function triggerDailySlot(slot) {
-    showToast(`正在向 #General 频道生成并派发${slot === 'morning' ? '晨间' : slot === 'afternoon' ? '午间' : '晚间'}英文战报...`, "success");
+    showToast(`正在向 #General 频道生成并派发${slot === 'morning' ? '晨间 10:00' : '晚间 20:00'}真实链上数据简报...`, "success");
     try {
         const res = await fetch("/api/daily-schedule/trigger", {
             method: "POST",

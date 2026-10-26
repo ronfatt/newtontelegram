@@ -607,66 +607,50 @@
                         </div>
                     </div>
 
-                    <!-- SECTION A: 每日三次全自动发帖至 #General (英文) -->
+                    <!-- SECTION A: 每日两次全自动发帖至 #General (英文真实链上数据) -->
                     <div class="card mb-4" style="border-left: 4px solid var(--primary);">
                         <div class="card-header-clean">
                             <div>
                                 <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
                                     <span>🌐</span>
-                                    <span>每日 3 次全自动发帖至 #General (英文频道) & 推特矩阵</span>
+                                    <span>每日 2 次全自动发帖至 #General (英文频道)</span>
                                 </h3>
                                 <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
-                                    系统依据预设时段，自动提取 ENI Chain (ChainID: 173) 实时链上数据与架构愿景，生成专业英文图文并自动推送至 <strong># General (Thread #1)</strong> 与推特。
+                                    每日两次提取 ENI Chain (ChainID: 173) 官方真实链上数据，生成地道简约英文图文，全自动推送至 <strong># General (Thread #1)</strong>。
                                 </p>
                             </div>
-                            <span class="badge badge-success">自动调度中</span>
+                            <span class="badge badge-success">自动发帖已正式启动</span>
                         </div>
-                        <div class="daily-general-grid mt-3" id="dailyGeneralSlotsContainer">
-                            <!-- Slot 1: 09:00 -->
+                        <div class="daily-general-grid mt-3" id="dailyGeneralSlotsContainer" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+                            <!-- Slot 1: 10:00 -->
                             <div class="daily-general-card">
                                 <div class="daily-general-header">
-                                    <span class="daily-general-title">🌅 晨间 09:00 战报</span>
-                                    <span id="slotStatus_morning" class="badge badge-info">等待调度</span>
+                                    <span class="daily-general-title">🌅 晨间 10:00：链上数据全览</span>
+                                    <span id="slotStatus_morning" class="badge badge-info">自动就绪</span>
                                 </div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">
-                                    <strong>主题：</strong>ENI Chain Daily On-Chain Pulse & Live Metrics<br>
-                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
-                                    <strong>语言：</strong>English (英文)
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                                    <strong>主题：</strong>ENI Chain Daily On-Chain Overview<br>
+                                    <strong>内容：</strong>实时区块高度、累计交易数、独立地址数、Gas 与出块速度<br>
+                                    <strong>定向：</strong># General (Thread #1) · 全英文简约文案
                                 </div>
-                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('morning')">
-                                    <span>⚡ 立即触发测试 (发至 #General)</span>
+                                <button class="btn btn-primary btn-sm mt-3 w-100" onclick="triggerDailySlot('morning')">
+                                    <span>⚡ 立即触发测试发帖 (发至 #General)</span>
                                 </button>
                             </div>
 
-                            <!-- Slot 2: 14:00 -->
+                            <!-- Slot 2: 20:00 -->
                             <div class="daily-general-card">
                                 <div class="daily-general-header">
-                                    <span class="daily-general-title">☀️ 午间 14:00 深度</span>
-                                    <span id="slotStatus_afternoon" class="badge badge-info">等待调度</span>
+                                    <span class="daily-general-title">🌙 晚间 20:00：全天网络脉搏</span>
+                                    <span id="slotStatus_evening" class="badge badge-info">自动就绪</span>
                                 </div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">
-                                    <strong>主题：</strong>Parallel EVM & Modular L1 Architecture<br>
-                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
-                                    <strong>语言：</strong>English (英文)
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                                    <strong>主题：</strong>ENI Chain 24H Network Pulse<br>
+                                    <strong>内容：</strong>全天链上交易处理量、最新区块确认、网络运行状态简报<br>
+                                    <strong>定向：</strong># General (Thread #1) · 全英文简约文案
                                 </div>
-                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('afternoon')">
-                                    <span>⚡ 立即触发测试 (发至 #General)</span>
-                                </button>
-                            </div>
-
-                            <!-- Slot 3: 20:00 -->
-                            <div class="daily-general-card">
-                                <div class="daily-general-header">
-                                    <span class="daily-general-title">🌙 晚间 20:00 速报</span>
-                                    <span id="slotStatus_evening" class="badge badge-info">等待调度</span>
-                                </div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">
-                                    <strong>主题：</strong>Ecosystem Trading, DEX Liquidity & Whale Alert<br>
-                                    <strong>定向：</strong># General (Thread #1) + Twitter<br>
-                                    <strong>语言：</strong>English (英文)
-                                </div>
-                                <button class="btn btn-secondary btn-sm mt-2" onclick="triggerDailySlot('evening')">
-                                    <span>⚡ 立即触发测试 (发至 #General)</span>
+                                <button class="btn btn-primary btn-sm mt-3 w-100" onclick="triggerDailySlot('evening')">
+                                    <span>⚡ 立即触发测试发帖 (发至 #General)</span>
                                 </button>
                             </div>
                         </div>

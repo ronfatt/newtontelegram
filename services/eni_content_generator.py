@@ -126,62 +126,54 @@ TECH_TOPICS_EN = [
 class ENIContentGenerator:
     @staticmethod
     async def generate_morning_post(config: Any, lang: str = "en") -> Dict[str, Any]:
-        """Slot 1: 晨间 09:00【ENI 链上数据实时战报】(默认英文推送至 #General)"""
+        """Slot 1: 晨间 10:00【ENI 链上数据实时战报】(真实链上数据 + 简约英文文案)"""
         stats = await eni_live_tracker.get_live_stats()
         if not stats:
             stats = {
-                "total_blocks": 41645000,
-                "total_txs": 26945000,
-                "active_addresses": 5230000,
-                "transactions_today": 25890,
-                "gas_price": 94.0,
-                "block_time": 1.04
+                "total_blocks": 42589000,
+                "total_txs": 27258000,
+                "active_addresses": 5284000,
+                "transactions_today": 28300,
+                "gas_price": 87.9,
+                "block_time": 1.02
             }
 
         tot_blocks = stats["total_blocks"]
         tot_txs = stats["total_txs"]
         tot_addrs = stats["active_addresses"]
+        tx_today = stats.get("transactions_today", 28300)
         gas = stats["gas_price"]
         b_time = stats["block_time"]
 
         if lang == "en":
-            templates = [
-                f"🌅 <b>【ENI Chain Daily On-Chain Pulse · Live Network Metrics】</b> 🌅\n\n"
-                f"ENI Mainnet is operating at peak performance with sub-second deterministic finality!\n\n"
-                f"🧱 Current Block Height: <b>#{tot_blocks:,}</b>\n"
-                f"📈 Total On-Chain Transactions: <b>{tot_txs:,}</b>\n"
-                f"👥 Active Wallet Network: <b>{tot_addrs:,}</b> addresses\n"
-                f"⚡ Average Block Time: <b>{b_time}s</b> (Parallel EVM)\n"
-                f"⛽ Network Gas Price: <b>{gas} Gwei</b>\n\n"
-                f"🔍 Live Blockscout Explorer: https://scan.eniac.network\n"
-                f"#ENIChain #NewtonProtocol #Layer1 #Web3 #DailyReport",
-
-                f"📊 <b>【ENI Mainnet 24H Activity & Ecosystem Pulse】</b> 📊\n\n"
-                f"Global enterprise modular public chain momentum continues to expand!\n\n"
-                f"💎 Key Network Highlights:\n"
-                f"• Total Height: #{tot_blocks:,}\n"
-                f"• Cumulative Volume: {tot_txs:,} transactions\n"
-                f"• Decentralized Network: {tot_addrs:,} active holders\n"
-                f"• Ultra-fast Finality: ~{b_time}s / Block\n\n"
-                f"🌐 Explore Mainnet Analytics: https://scan.eniac.network\n"
-                f"#ENIChain #Blockchain #Crypto #MainnetData"
-            ]
-            title = f"ENI Chain Daily Pulse: #{tot_blocks:,} Blocks"
+            text = (
+                f"🌐 <b>【ENI Chain Daily On-Chain Overview】</b> 🌐\n\n"
+                f"Real-time network snapshot from ENI Mainnet:\n\n"
+                f"• <b>Block Height:</b> #{tot_blocks:,}\n"
+                f"• <b>Total Transactions:</b> {tot_txs:,}\n"
+                f"• <b>Active Addresses:</b> {tot_addrs:,}\n"
+                f"• <b>Today's Transactions:</b> {tx_today:,}\n"
+                f"• <b>Block Time:</b> {b_time}s (Parallel EVM)\n"
+                f"• <b>Gas Price:</b> {gas} Gwei\n\n"
+                f"🔗 <b>Live Explorer:</b> https://scan.eniac.network\n"
+                f"#ENI #ENIChain #NewtonProtocol #Mainnet"
+            )
+            title = f"ENI Chain Daily Overview: #{tot_blocks:,} Blocks"
         else:
-            templates = [
-                f"🌅 <b>【ENI Chain 链上早报 · 实时全网数据】</b>\n\n"
-                f"新的一天，ENI 主网正在高速稳定运行！\n\n"
-                f"🧱 最新区块高度: <b>#{tot_blocks:,}</b>\n"
-                f"📈 累计链上交易: <b>{tot_txs:,}</b> 笔\n"
-                f"👥 独立持币地址: <b>{tot_addrs:,}</b> 个\n"
-                f"⚡ 平均出块速度: <b>{b_time} 秒</b> (并行确定性)\n"
-                f"⛽ 当前平均 Gas: <b>{gas} Gwei</b>\n\n"
-                f"🔍 官方实时浏览器: https://scan.eniac.network\n"
-                f"#ENIChain #ENI #CryptoMorning #Web3 #DailyReport"
-            ]
-            title = f"ENI Chain 链上早报: #{tot_blocks:,} Blocks"
+            text = (
+                f"🌐 <b>【ENI Chain 链上数据每日速递】</b> 🌐\n\n"
+                f"ENI 主网实时运行数据汇总：\n\n"
+                f"• <b>最新区块高度:</b> #{tot_blocks:,}\n"
+                f"• <b>累计链上交易:</b> {tot_txs:,} 笔\n"
+                f"• <b>活跃持币地址:</b> {tot_addrs:,} 个\n"
+                f"• <b>今日实时交易:</b> {tx_today:,} 笔\n"
+                f"• <b>平均出块时间:</b> {b_time} 秒\n"
+                f"• <b>网络 Gas 价格:</b> {gas} Gwei\n\n"
+                f"🔗 <b>实时浏览器:</b> https://scan.eniac.network\n"
+                f"#ENI #ENIChain #NewtonProtocol #主网数据"
+            )
+            title = f"ENI Chain 链上数据速递: #{tot_blocks:,} Blocks"
 
-        text = random.choice(templates)
         event_data = {
             "slot": "morning",
             "event_type": "summary",
@@ -190,7 +182,7 @@ class ENIContentGenerator:
             "total_blocks": tot_blocks,
             "total_txs": tot_txs,
             "active_addresses": tot_addrs,
-            "transactions_today": stats.get("transactions_today", 25890),
+            "transactions_today": tx_today,
             "gas_price": gas,
             "block_time": b_time,
             "amount": 0.0,
@@ -200,7 +192,7 @@ class ENIContentGenerator:
 
     @staticmethod
     async def generate_afternoon_post(config: Any, lang: str = "en") -> Dict[str, Any]:
-        """Slot 2: 午间 14:00【ENI 核心技术与愿景深度】(默认英文推送至 #General)"""
+        """Slot 2: 午间备用【ENI 核心技术与愿景深度】"""
         topics = TECH_TOPICS_EN if lang == "en" else TECH_TOPICS
         idx = int(time.time() // 86400) % len(topics)
         topic = topics[idx]
@@ -208,7 +200,7 @@ class ENIContentGenerator:
         event_data = {
             "slot": "afternoon",
             "event_type": "tech",
-            "title": f"ENI Architecture Spotlight: {topic['title']}",
+            "title": f"ENI Architecture: {topic['title']}",
             "content": topic["body"],
             "tech_title": topic["tech_title"],
             "tech_sub": topic["tech_sub"],
@@ -220,66 +212,66 @@ class ENIContentGenerator:
 
     @staticmethod
     async def generate_evening_post(config: Any, lang: str = "en") -> Dict[str, Any]:
-        """Slot 3: 晚间 20:00【ENI 生态交易与流动性速报】(默认英文推送至 #General)"""
-        txs = await eni_live_tracker.get_live_transactions(limit=5)
-        top_tx = txs[0] if txs else None
+        """Slot 3: 晚间 20:00【ENI 全天生态网络脉搏】(真实链上数据 + 简约英文文案)"""
+        stats = await eni_live_tracker.get_live_stats()
+        if not stats:
+            stats = {
+                "total_blocks": 42589000,
+                "total_txs": 27258000,
+                "active_addresses": 5284000,
+                "transactions_today": 28300,
+                "gas_price": 87.9,
+                "block_time": 1.02
+            }
 
-        if top_tx and top_tx.get("tx_hash"):
-            tx_hash_short = top_tx["tx_hash_short"]
-            tx_hash = top_tx["tx_hash"]
-            from_short = top_tx["from_short"]
-            to_short = top_tx["to_short"]
-            block_no = top_tx.get("block_number", 41644000)
-        else:
-            tx_hash = "0x" + "a" * 64
-            tx_hash_short = "0x89f2...3b1a"
-            from_short = "0x4b21...98ae"
-            to_short = "0xd812...44f0"
-            block_no = 41644200
+        tot_blocks = stats["total_blocks"]
+        tot_txs = stats["total_txs"]
+        tot_addrs = stats["active_addresses"]
+        tx_today = stats.get("transactions_today", 28300)
+        gas = stats["gas_price"]
+        b_time = stats["block_time"]
 
         if lang == "en":
             text = (
-                f"🌙 <b>【ENI Chain Evening Ecosystem Pulse & Live Liquidity Brief】</b> 🌙\n\n"
-                f"High on-chain transaction velocity and active decentralized liquidity settlement across ENI Mainnet!\n\n"
-                f"⚡ Latest Verified Mainnet Activity:\n"
-                f"• Tx Hash: <code>{tx_hash_short}</code>\n"
-                f"• Sender Address: <code>{from_short}</code>\n"
-                f"• Interacting Contract: <code>{to_short}</code>\n"
-                f"• Confirmation Block: #{block_no:,}\n\n"
-                f"🔄 Trade on Official DEX: https://xplan.eniac.network/swap\n"
-                f"🔍 Verified Blockscout Explorer: https://scan.eniac.network\n\n"
-                f"#ENIChain #ENI #DEX #CryptoTrading #Web3Ecosystem"
+                f"📊 <b>【ENI Chain 24H Network Pulse】</b> 📊\n\n"
+                f"Daily on-chain operational summary from ENI Mainnet:\n\n"
+                f"• <b>Current Height:</b> #{tot_blocks:,}\n"
+                f"• <b>Total Transactions:</b> {tot_txs:,}\n"
+                f"• <b>Network Wallets:</b> {tot_addrs:,}\n"
+                f"• <b>24H Transactions:</b> {tx_today:,}\n"
+                f"• <b>Average Gas:</b> {gas} Gwei\n"
+                f"• <b>Network Status:</b> Healthy & Operational\n\n"
+                f"🔗 <b>Live Analytics:</b> https://scan.eniac.network\n"
+                f"#ENI #Blockchain #Crypto #NewtonProtocol #Web3"
             )
-            title = f"ENI Evening Ecosystem Brief: Block #{block_no:,}"
+            title = f"ENI 24H Network Pulse: #{tot_blocks:,} Blocks"
         else:
             text = (
-                f"🌙 <b>【ENI Chain 晚间生态动态与链上交易速报】</b>\n\n"
-                f"晚间链上交互活跃，生态 DEX 与大额转账正在持续结算！\n\n"
-                f"⚡ 最新主网交互动态：\n"
-                f"• 交易哈希: <code>{tx_hash_short}</code>\n"
-                f"• 发起地址: <code>{from_short}</code>\n"
-                f"• 交互合约: <code>{to_short}</code>\n"
-                f"• 确认区块: #{block_no:,}\n\n"
-                f"🔄 体验生态去中心化兑换: https://xplan.eniac.network/swap\n"
-                f"🔍 链上实时浏览器: https://scan.eniac.network\n\n"
-                f"#ENIChain #ENI #DEX #CryptoTrading #Web3Ecosystem"
+                f"📊 <b>【ENI Chain 全天链上网络速览】</b> 📊\n\n"
+                f"ENI 主网全天候运行简报：\n\n"
+                f"• <b>当前区块高度:</b> #{tot_blocks:,}\n"
+                f"• <b>全网累计交易:</b> {tot_txs:,} 笔\n"
+                f"• <b>独立钱包地址:</b> {tot_addrs:,} 个\n"
+                f"• <b>全天交易处理:</b> {tx_today:,} 笔\n"
+                f"• <b>平均 Gas 价格:</b> {gas} Gwei\n"
+                f"• <b>网络运行状态:</b> 正常高效运行中\n\n"
+                f"🔗 <b>实时统计看板:</b> https://scan.eniac.network\n"
+                f"#ENI #区块链 #加密货币 #牛顿协议"
             )
-            title = f"ENI 晚间生态速报: Block #{block_no:,}"
+            title = f"ENI 全天链上网络速报: #{tot_blocks:,} Blocks"
 
         event_data = {
             "slot": "evening",
-            "event_type": "whale",
+            "event_type": "summary",
             "title": title,
             "content": text,
-            "tx_hash": tx_hash,
-            "amount": 58800.0,
-            "usd_value": 8820.0,
-            "symbol": "ENI",
-            "price": config.chain.token_price_usd,
-            "from_addr": from_short,
-            "to_addr": to_short,
-            "from_short": from_short,
-            "to_short": to_short,
-            "tx_hash_short": tx_hash_short
+            "total_blocks": tot_blocks,
+            "total_txs": tot_txs,
+            "active_addresses": tot_addrs,
+            "transactions_today": tx_today,
+            "gas_price": gas,
+            "block_time": b_time,
+            "amount": 0.0,
+            "usd_value": 0.0
         }
         return event_data

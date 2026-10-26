@@ -112,11 +112,12 @@ class TemplatesSettings(BaseModel):
     )
 
 class DailyScheduleSettings(BaseModel):
-    enabled: bool = Field(default=True, description="Enable automatic 3 posts per day")
-    morning_time: str = Field(default="09:00", description="Morning post time (HH:MM)")
-    afternoon_time: str = Field(default="14:00", description="Afternoon post time (HH:MM)")
+    enabled: bool = Field(default=True, description="Enable automatic 2 posts per day to #General")
+    posts_per_day: int = Field(default=2, description="Daily posts count (default: 2)")
+    morning_time: str = Field(default="10:00", description="Morning post time (HH:MM)")
+    afternoon_time: str = Field(default="", description="Afternoon post time (optional)")
     evening_time: str = Field(default="20:00", description="Evening post time (HH:MM)")
-    auto_publish_twitter: bool = Field(default=True)
+    auto_publish_twitter: bool = Field(default=False)
     auto_publish_telegram: bool = Field(default=True)
 
 class AppConfig(BaseModel):

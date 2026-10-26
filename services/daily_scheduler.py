@@ -25,22 +25,17 @@ class DailyScheduler:
         return {
             "date": today_str,
             "enabled": ds.enabled,
+            "posts_per_day": getattr(ds, "posts_per_day", 2),
             "slots": {
                 "morning": {
-                    "time": ds.morning_time,
-                    "title": "🌅 晨间 09:00：ENI 链上数据实时战报 (#General 英文)",
+                    "time": ds.morning_time or "10:00",
+                    "title": f"🌅 晨间 {ds.morning_time or '10:00'}：ENI 实时链上数据速递 (#General 英文)",
                     "executed": "morning" in runs,
                     "info": runs.get("morning")
                 },
-                "afternoon": {
-                    "time": ds.afternoon_time,
-                    "title": "☀️ 午间 14:00：ENI 核心技术与愿景深度 (#General 英文)",
-                    "executed": "afternoon" in runs,
-                    "info": runs.get("afternoon")
-                },
                 "evening": {
-                    "time": ds.evening_time,
-                    "title": "🌙 晚间 20:00：ENI 生态交易与流动性速报 (#General 英文)",
+                    "time": ds.evening_time or "20:00",
+                    "title": f"🌙 晚间 {ds.evening_time or '20:00'}：ENI 全天生态网络脉搏 (#General 英文)",
                     "executed": "evening" in runs,
                     "info": runs.get("evening")
                 }
@@ -206,22 +201,25 @@ class DailyScheduler:
                     # 检查是否开启自动发布到 Telegram
                     telegram_auto_allowed = config.auto_publish and config.telegram.enabled
 
-                    # 1. 每日三篇 #General 英文发帖
+                    # 1. 每日 #General 英文发帖 (每日两次：晨间 + 晚间)
                     if ds.enabled and telegram_auto_allowed:
                         today_str = self.get_today_date_str()
                         runs = await get_today_slot_runs(today_str)
 
-                        if current_hm == ds.morning_time and "morning" not in runs:
+                        # Slot 1: 晨间 (默认 10:00)
+                        if ds.morning_time and current_hm == ds.morning_time and "morning" not in runs:
                             print(f"[Daily Scheduler] Triggering morning post to #General at {current_hm}...")
                             await self.trigger_slot("morning", force=False)
 
-                        elif current_hm == ds.afternoon_time and "afternoon" not in runs:
-                            print(f"[Daily Scheduler] Triggering afternoon post to #General at {current_hm}...")
-                            await self.trigger_slot("afternoon", force=False)
-
-                        elif current_hm == ds.evening_time and "evening" not in runs:
+                        # Slot 2: 晚间 (默认 20:00)
+                        elif ds.evening_time and current_hm == ds.evening_time and "evening" not in runs:
                             print(f"[Daily Scheduler] Triggering evening post to #General at {current_hm}...")
                             await self.trigger_slot("evening", force=False)
+
+                        # 备用午间时段 (仅当明确设置时触发)
+                        elif ds.afternoon_time and current_hm == ds.afternoon_time and "afternoon" not in runs:
+                            print(f"[Daily Scheduler] Triggering afternoon post to #General at {current_hm}...")
+                            await self.trigger_slot("afternoon", force=False)
 
                     # 2. 检查多天排期计划 (4 大语言频道)
                     if telegram_auto_allowed:
