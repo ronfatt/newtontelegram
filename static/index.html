@@ -646,12 +646,32 @@
                                 </div>
                                 <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
                                     <strong>主题：</strong>ENI Chain 24H Network Pulse<br>
-                                    <strong>内容：</strong>全天链上交易处理量、最新区块确认、网络运行状态简报<br>
+                                    <strong>内容：</strong>全天链上交易处理量、最新区块确认、随机融入白皮书/生态宣传亮点<br>
                                     <strong>定向：</strong># General (Thread #1) · 全英文简约文案
                                 </div>
                                 <button class="btn btn-primary btn-sm mt-3 w-100" onclick="triggerDailySlot('evening')">
                                     <span>⚡ 立即触发测试发帖 (发至 #General)</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- 快捷派发白皮书与宣传专属贴 -->
+                        <div class="p-3 mt-3" style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; border: 1px dashed var(--border);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <strong style="font-size: 13px; color: var(--text);">📖 白皮书核心技术 & 🚀 生态宣传专版快捷发帖</strong>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                        无需等待定时，可随时随机抽取白皮书 6 大架构或牛顿生态宣传亮点，自动携带实时链上指标推送至 #General。
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary btn-sm" onclick="triggerDailySlot('whitepaper')">
+                                        <span>📖 随机发白皮书帖</span>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" onclick="triggerDailySlot('promotional')">
+                                        <span>🚀 随机发生态宣传帖</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

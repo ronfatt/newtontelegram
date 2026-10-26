@@ -198,6 +198,22 @@ async def get_daily_schedule_status():
     status = await daily_scheduler.get_daily_status()
     return status
 
+@app.get("/api/content/preview")
+async def preview_content_endpoint(type: str = "whitepaper", lang: str = "en"):
+    config = await get_app_config()
+    from services.eni_content_generator import ENIContentGenerator
+    if type == "whitepaper":
+        data = await ENIContentGenerator.generate_whitepaper_post(config, lang=lang)
+    elif type == "promotional":
+        data = await ENIContentGenerator.generate_promotional_post(config, lang=lang)
+    elif type == "morning":
+        data = await ENIContentGenerator.generate_morning_post(config, lang=lang)
+    elif type == "evening":
+        data = await ENIContentGenerator.generate_evening_post(config, lang=lang)
+    else:
+        data = await ENIContentGenerator.generate_morning_post(config, lang=lang)
+    return {"success": True, "data": data}
+
 class TriggerScheduleRequest(BaseModel):
     slot: str = "morning"
 

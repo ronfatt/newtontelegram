@@ -866,7 +866,13 @@ async function loadDailyGeneralSlots() {
 }
 
 async function triggerDailySlot(slot) {
-    showToast(`正在向 #General 频道生成并派发${slot === 'morning' ? '晨间 10:00' : '晚间 20:00'}真实链上数据简报...`, "success");
+    const labelMap = {
+        'morning': '晨间 10:00 链上数据全览 (含白皮书/宣传精选)',
+        'evening': '晚间 20:00 全天网络脉搏 (含生态宣传精选)',
+        'whitepaper': '白皮书核心技术深度解构帖',
+        'promotional': '牛顿生态宣传与发展亮点帖'
+    };
+    showToast(`正在向 #General 频道派发【${labelMap[slot] || slot}】...`, "info");
     try {
         const res = await fetch("/api/daily-schedule/trigger", {
             method: "POST",

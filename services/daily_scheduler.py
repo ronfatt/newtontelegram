@@ -71,6 +71,10 @@ class DailyScheduler:
             event_data = await ENIContentGenerator.generate_afternoon_post(config, lang="en")
         elif slot == "evening":
             event_data = await ENIContentGenerator.generate_evening_post(config, lang="en")
+        elif slot == "whitepaper":
+            event_data = await ENIContentGenerator.generate_whitepaper_post(config, lang="en")
+        elif slot == "promotional":
+            event_data = await ENIContentGenerator.generate_promotional_post(config, lang="en")
         else:
             raise ValueError(f"Unknown slot: {slot}")
 
