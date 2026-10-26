@@ -306,8 +306,24 @@ def create_alert_card(
     img.save(filepath, "PNG")
     return filepath
 
+def get_universal_banner_path() -> Optional[str]:
+    """Returns the absolute path to the official universal branded banner if available"""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(base_dir, "static", "images", "universal_banner.png"),
+        os.path.join(base_dir, "static", "uploads", "posters", "universal_banner.png")
+    ]
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return None
+
 def generate_banner_image(theme: str = "tech", title: str = "", subtitle: str = "", footer_text: str = "") -> str:
-    """Convenience alias for create_alert_card"""
+    """Convenience alias for banner image - returns official universal banner if available"""
+    univ = get_universal_banner_path()
+    if univ:
+        return univ
+
     data = {
         "title": title or "ENI MODULAR L1 ARCHITECTURE",
         "subtitle": subtitle or "Automated Operations System",

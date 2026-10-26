@@ -271,12 +271,21 @@ class AlertEngine:
                 title = f"ENI {event_type.capitalize()} 提醒"
             text = self.format_template(tpl, raw_data, config)
 
-        # 4. Generate visual card image
-        image_path = None
-        try:
-            image_path = create_alert_card(event_type, raw_data)
-        except Exception as e:
-            print(f"[AlertEngine] Image generation failed: {e}")
+        # 4. Generate visual card image or use universal branded banner
+        image_path = raw_data.get("image_path")
+        if not image_path:
+            # Check for universal banner if daily summary or tech/scheduled post
+            universal_banner = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "static", "images", "universal_banner.png"
+            )
+            if event_type in ["summary", "tech"] and os.path.exists(universal_banner):
+                image_path = universal_banner
+            else:
+                try:
+                    image_path = create_alert_card(event_type, raw_data)
+                except Exception as e:
+                    print(f"[AlertEngine] Image generation failed: {e}")
 
         # 5. Prepare Telegram buttons
         buttons = []

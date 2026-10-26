@@ -80,6 +80,12 @@ class DailyScheduler:
 
         event_data["target_thread_id"] = general_thread_id
 
+        # Attach high-definition universal banner
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        universal_banner = os.path.join(base_dir, "static", "images", "universal_banner.png")
+        if os.path.exists(universal_banner):
+            event_data["image_path"] = universal_banner
+
         # 3. 处理派发 (自动渲染图文卡片，发送至 #General 及 Twitter)
         result = await alert_engine.process_event(event_data, config)
 
@@ -156,6 +162,11 @@ class DailyScheduler:
                 candidate = os.path.join(base_dir, poster)
                 if os.path.exists(candidate):
                     real_image_path = candidate
+        if not real_image_path:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            candidate = os.path.join(base_dir, "static", "images", "universal_banner.png")
+            if os.path.exists(candidate):
+                real_image_path = candidate
 
         dispatches = [
             ("en", thread_map["en"], campaign.get("text_en") or campaign.get("text_zh")),
