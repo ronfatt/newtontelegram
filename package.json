@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "Newton Protocol × ENI Chain Automation Operations Platform",
   "scripts": {
+    "build": "mkdir -p public/static public/images && cp static/index.html public/ && cp static/styles.css public/ && cp static/app.js public/ && cp static/styles.css public/static/ && cp static/app.js public/static/ && cp -r static/images/* public/images/ 2>/dev/null || true && cp -r static/images public/static/ 2>/dev/null || true",
     "start": "bash ./start.sh",
     "dev": "bash ./start.sh"
   }

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>NEWTON ENI 社区运营超级控制台 | Multi-Channel Operations Platform</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2.2.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div id="app">
+        <!-- Top Navbar -->
+        <header class="navbar">
+            <div class="nav-brand">
+                <div class="logo-circle">⚛</div>
+                <div class="brand-info">
+                    <div class="brand-row">
+                        <span class="brand-title">NEWTON PROTOCOL × ENI CHAIN</span>
+                        <span class="badge badge-pro">SUPER CONSOLE 2.0</span>
+                    </div>
+                    <span class="brand-sub">官方数据源: <a href="https://scan.eniac.network" target="_blank" class="link-sub">scan.eniac.network</a> (ChainID: 173)</span>
+                </div>
+            </div>
+
+            <div class="nav-status-group">
+                <div class="status-chip" id="rpcStatusChip">
+                    <span class="indicator pulsing" id="rpcIndicator"></span>
+                    <span class="label">ENI 主网:</span>
+                    <span class="value" id="rpcStatusVal">173 (连接中...)</span>
+                </div>
+                <div class="status-chip" id="tgStatusChip">
+                    <span class="indicator" id="tgIndicator"></span>
+                    <span class="label">Telegram:</span>
+                    <span class="value" id="tgStatusVal">未连接</span>
+                </div>
+                <div class="status-chip" id="twStatusChip">
+                    <span class="indicator" id="twIndicator"></span>
+                    <span class="label">X (Twitter):</span>
+                    <span class="value" id="twStatusVal">@eni_newton</span>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btnWatcherToggle" onclick="toggleWatcher()">
+                    <span class="icon">▶</span> <span id="watcherBtnText">启动链上监听</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body Grid -->
+        <div class="main-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <nav class="side-nav">
+                    <button class="nav-item active" onclick="switchTab('twitter')">
+                        <span class="nav-icon">📢</span> 推特矩阵运营发文
+                    </button>
+                    <button class="nav-item" onclick="switchTab('multilingual')">
+                        <span class="nav-icon">🌐</span> 4国语言一键广播
+                    </button>
+                    <button class="nav-item" onclick="switchTab('topics')">
+                        <span class="nav-icon">💬</span> 全社区板块 & 话题绑定
+                    </button>
+                    <button class="nav-item" onclick="switchTab('research')">
+                        <span class="nav-icon">🤖</span> AI 投研与生态中心
+                    </button>
+                    <button class="nav-item" onclick="switchTab('scheduler')">
+                        <span class="nav-icon">⏰</span> 定时自动化任务管理
+                    </button>
+                    <button class="nav-item" onclick="switchTab('eni-live')">
+                        <span class="nav-icon">⚡</span> 实时链上数据与行情
+                    </button>
+                    <button class="nav-item" onclick="switchTab('settings')">
+                        <span class="nav-icon">⚙️</span> 系统设置与API密钥
+                    </button>
+                    <button class="nav-item" onclick="switchTab('history')">
+                        <span class="nav-icon">📜</span> 发帖与广播历史审计
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="account-card">
+                        <div class="acc-row">
+                            <span class="dot-online"></span>
+                            <span class="acc-name">@eni_newton</span>
+                            <span class="acc-badge">已授权</span>
+                        </div>
+                        <div class="acc-sub">Telegram 11话题专属矩阵就绪</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content-view">
+
+                <!-- ======================================================== -->
+                <!-- TAB 1: TWITTER (X.COM) OPERATIONS (Image 1 Reference)    -->
+                <!-- ======================================================== -->
+                <section id="tab-twitter" class="tab-pane active">
+                    <div class="pane-header">
+                        <div>
+                            <h2>📢 推特 (X.com) 官方矩阵运营与自动发文</h2>
+                            <p class="subtext">支持白皮书核心要点、全球要闻、链上异动一键生成，并配备实时 X 暗黑模式卡片预览与字数权重核验。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="loadRecentNewsForTweet()">
+                                <span>📰 抓取最新宏观快讯</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadLiveChainStatsForTweet()">
+                                <span>⚡ 抓取主网实时指标</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3 Quick Banner Buttons -->
+                    <div class="quick-banner-grid">
+                        <button class="quick-banner-btn banner-gold" onclick="fillTweetTheme('whitepaper')">
+                            <div class="b-icon">📜</div>
+                            <div class="b-text">
+                                <strong>1. 白皮书核心要点</strong>
+                                <span>并行EVM、模块化扩容、亚秒敲定与去中心化架构</span>
+                            </div>
+                        </button>
+                        <button class="quick-banner-btn banner-cyan" onclick="fillTweetTheme('news_insight')">
+                            <div class="b-icon">🌍</div>
+                            <div class="b-text">
+                                <strong>2. 全球区块链要闻 + ENI观点</strong>
+                                <span>结合国际头条突发，输出 ENI 独家前沿投研见解</span>
+                            </div>
+                        </button>
+                        <button class="quick-banner-btn banner-purple" onclick="fillTweetTheme('market_ai')">
+                            <div class="b-icon">🧠</div>
+                            <div class="b-text">
+                                <strong>3. 跨资产/链上实时行情 + AI</strong>
+                                <span>ENI 实时TPS、大单清算与智能体自动化交易分析</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Dual Column: Composer + X Client Preview Card -->
+                    <div class="composer-grid">
+                        <!-- Left: Editor & Controls -->
+                        <div class="composer-card">
+                            <div class="card-header-clean">
+                                <h4>推文创作控制台 (X Composer)</h4>
+                                <div class="template-pills">
+                                    <span class="pill-label">爆款模板:</span>
+                                    <button class="pill" onclick="applyTweetTemplate('tech')">⚡ 技术突破</button>
+                                    <button class="pill" onclick="applyTweetTemplate('whale')">🐳 巨鲸异动</button>
+                                    <button class="pill" onclick="applyTweetTemplate('daily')">🌅 生态晨报</button>
+                                    <button class="pill" onclick="applyTweetTemplate('rwa')">🪙 RWA创新</button>
+                                </div>
+                            </div>
+
+                            <div class="composer-body">
+                                <textarea id="tweetInput" class="tweet-textarea" rows="7" placeholder="撰写要推送到 @eni_newton 的推文... 支持 #标签 与链接" oninput="updateTweetPreview()"></textarea>
+
+                                <!-- Emoji Quick Bar -->
+                                <div class="emoji-bar">
+                                    <span class="emoji-label">常用符号:</span>
+                                    <button class="btn-emoji" onclick="insertEmoji('⚡')">⚡</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('🚀')">🚀</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('💎')">💎</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('🐳')">🐳</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('📊')">📊</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('🔥')">🔥</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('🤖')">🤖</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('🌐')">🌐</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('#ENI')">#ENI</button>
+                                    <button class="btn-emoji" onclick="insertEmoji('#NewtonProtocol')">#Newton</button>
+                                </div>
+
+                                <div class="media-row">
+                                    <label class="media-btn">
+                                        <span>🖼️ 选择配图主题:</span>
+                                        <select id="tweetImageTheme" onchange="refreshTweetImage()">
+                                            <option value="none">无配图 (纯文字推文)</option>
+                                            <option value="tech" selected>技术突破卡片 (Tech Banner)</option>
+                                            <option value="summary">每日生态早报 (Daily Pulse)</option>
+                                            <option value="whale">巨鲸大额异动 (Whale Alert)</option>
+                                            <option value="staking">质押与节点 (Staking)</option>
+                                            <option value="news">全球宏观快讯 (Global News)</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div class="composer-footer">
+                                    <div class="char-count-wrap">
+                                        <div class="char-progress-bar">
+                                            <div id="tweetProgress" class="char-progress" style="width: 20%;"></div>
+                                        </div>
+                                        <span id="tweetCharCounter" class="char-counter">0 / 280 权重</span>
+                                    </div>
+
+                                    <div class="sync-tg-wrap">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="chkSyncTg" checked>
+                                            <span>同步推送到 Telegram 话题:</span>
+                                        </label>
+                                        <select id="selectSyncThread" class="select-sm">
+                                            <option value="1" selected>💬 # General (#1) - 综合大厅</option>
+                                            <option value="16">🗣️ 🇬🇧 ENGLISH CHAT (#16)</option>
+                                            <option value="17">🗣️ 🇨🇳 CHINESE CHAT (#17)</option>
+                                            <option value="18">🗣️ KOREAN CHAT (#18)</option>
+                                            <option value="19">🗣️ 🇻🇳 VIETNAMESE CHAT (#19)</option>
+                                            <option value="13">✅ START HERE (#13)</option>
+                                            <option value="12">📝 ABOUT NEWTON PROTOCOL (#12)</option>
+                                            <option value="32">🎬 VIDEO CENTRE (#32)</option>
+                                            <option value="31">📣 MARKETING TOOLS (#31)</option>
+                                            <option value="15">🎉 REWARDS AND BENEFITS (#15)</option>
+                                            <option value="14">❤️ NEWTON PROTOCOL CHARITY (#14)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="action-btn-row">
+                                    <button class="btn btn-x-brand btn-lg" id="btnPublishTweet" onclick="publishTweetNow()">
+                                        <svg class="x-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                        </svg>
+                                        <span>立即推送到 Twitter (@eni_newton)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Twitter Client Real-Time Preview Card (X Dark Mode) -->
+                        <div class="preview-col">
+                            <div class="preview-header-bar">
+                                <span class="ph-title">推特客户端实时渲染预览 (X Dark Mode)</span>
+                                <span class="badge badge-success">Live View</span>
+                            </div>
+
+                            <div class="x-tweet-card">
+                                <div class="x-tweet-header">
+                                    <div class="x-avatar">
+                                        <span>⚛</span>
+                                    </div>
+                                    <div class="x-author-meta">
+                                        <div class="x-name-row">
+                                            <span class="x-display-name">Newton Protocol × ENI</span>
+                                            <span class="x-verified-badge">✓</span>
+                                            <span class="x-username">@eni_newton</span>
+                                            <span class="x-dot">·</span>
+                                            <span class="x-time">刚刚</span>
+                                        </div>
+                                        <span class="x-target-badge">ENI Official Core Node</span>
+                                    </div>
+                                    <div class="x-menu-dots">···</div>
+                                </div>
+
+                                <div class="x-tweet-body" id="previewTweetText">
+                                    ⚡ 正在加载推文预览内容...
+                                </div>
+
+                                <div class="x-tweet-media" id="previewTweetMediaBox">
+                                    <img id="previewTweetImg" src="/images/banner_tech.png" alt="Tweet Banner" onerror="this.style.display='none'">
+                                </div>
+
+                                <div class="x-tweet-actions">
+                                    <div class="x-act-item">
+                                        <span class="x-act-icon">💬</span>
+                                        <span class="x-act-num">12</span>
+                                    </div>
+                                    <div class="x-act-item">
+                                        <span class="x-act-icon">🔁</span>
+                                        <span class="x-act-num">38</span>
+                                    </div>
+                                    <div class="x-act-item">
+                                        <span class="x-act-icon">❤️</span>
+                                        <span class="x-act-num">184</span>
+                                    </div>
+                                    <div class="x-act-item">
+                                        <span class="x-act-icon">📊</span>
+                                        <span class="x-act-num">4.2K</span>
+                                    </div>
+                                    <div class="x-act-item">
+                                        <span class="x-act-icon">🔖</span>
+                                        <span class="x-act-icon">📤</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="preview-tips">
+                                💡 <b>推特排版建议:</b> 每条推文建议包含 1~2 个核心数据、1 个技术亮点以及不超过 3 个标签。避免超过 250 权重字符以保证推特 API v2 稳定投递。
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 2: 4-LANGUAGE MULTILINGUAL BROADCAST (Real Topics)   -->
+                <!-- ======================================================== -->
+                <section id="tab-multilingual" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>🌐 4国语言社群一键广播 (4-Language Community Broadcast)</h2>
+                            <p class="subtext">支持在中英文母版草稿输入后，全自动高保真翻译并并发投递到 @Newton_International 4大语言超级群话题（英语 #16 / 中文 #17 / 韩语 #18 / 越南语 #19）。</p>
+                        </div>
+                    </div>
+
+                    <!-- Top 4 Flag Topic Pills -->
+                    <div class="flag-pills-bar" id="multilingualPillsBar">
+                        <!-- Filled dynamically: 🇬🇧 #16, 🇨🇳 #17, 🇰🇷 #18, 🇻🇳 #19 -->
+                    </div>
+
+                    <!-- Draft Box -->
+                    <div class="card broadcast-draft-card">
+                        <div class="card-header-clean">
+                            <h4>母版广播草稿 (支持 Markdown 排版)</h4>
+                            <div class="trans-engine-selector">
+                                <span class="engine-label">翻译引擎:</span>
+                                <select class="select-sm" id="transEngineSelect">
+                                    <option value="google">Google Translate Web (免费内置 · 推荐)</option>
+                                    <option value="local">Local Web3 Glossary (Web3专业术语保真)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="broadcast-draft-body">
+                            <textarea id="broadcastDraftInput" class="form-textarea" rows="5" placeholder="在此输入公告母版 (支持中英文)。例如：
+🎉 Newton Protocol × ENI Chain 主网节点全面扩容升级完成！
+经过双重验证引擎与并行EVM调度优化，当前主网平均出块耗时缩减至 1 秒以内，总交易量突破 2,690 万笔。
+欢迎全球社区成员参与节点质押与生态应用构建！
+官方区块链浏览器: https://scan.eniac.network/"></textarea>
+                        </div>
+
+                        <div class="broadcast-draft-footer">
+                            <div class="draft-left-meta">
+                                <span>目标范围: 4 国语言官方超级群话题 (#16, #17, #18, #19)</span>
+                            </div>
+                            <div class="draft-right-actions">
+                                <button class="btn btn-secondary" onclick="loadSampleAnnouncement()">
+                                    <span>📝 载入官方升级公告范本</span>
+                                </button>
+                                <button class="btn btn-primary" onclick="generate11LanguagePreview()">
+                                    <span>⚡ 生成 4 国卡片预览 & 一键投递</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Country Preview Grid -->
+                    <div class="multilingual-results-header" id="multiPreviewHeader" style="display: none;">
+                        <h3>4 国语言卡片预览 (就绪状态)</h3>
+                        <button class="btn btn-success btn-lg" id="btnBroadcastAllLangs" onclick="broadcastAll11Languages()">
+                            <span>🚀 一键广播到 Telegram 4大语言话题</span>
+                        </button>
+                    </div>
+
+                    <div class="country-cards-grid" id="countryCardsContainer">
+                        <!-- Populated by JavaScript with 4 cards -->
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 3: TOPIC THREAD BINDINGS & CHANNELS (Image 2 Ref)    -->
+                <!-- ======================================================== -->
+                <section id="tab-topics" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>💬 Telegram 全社区板块 & 话题 Thread ID 绑定 (29个话题)</h2>
+                            <p class="subtext">管理 Telegram 超级群论坛模式（Forum Topics）各个子板块对应的 message_thread_id，实现分类定向发帖与一键直发。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="promptAddTopic()">
+                                <span>➕ 新增自定义话题板块</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadTopicBindings()">
+                                <span>🔄 刷新话题绑定表</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bot & Group Credentials Card -->
+                    <div class="card mb-4">
+                        <div class="card-header-clean">
+                            <h4>Telegram 超级群连接参数</h4>
+                            <div class="btn-align-bottom">
+                                <button class="btn btn-secondary btn-sm" onclick="autoDetectGroupAndTopics()">
+                                    <span>⚡ 一键自动识别群与所有话题 ID</span>
+                                </button>
+                                <span class="badge badge-info">Forum Supergroup</span>
+                            </div>
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>Bot Token:</label>
+                                <input type="password" id="tgBotTokenInput" class="form-input" placeholder="bot123456:ABC-DEF..." oninput="syncTgInputs('topics')">
+                            </div>
+                            <div class="form-group">
+                                <label>超级群 Chat ID (Forum):</label>
+                                <input type="text" id="tgChatIdInput" class="form-input" placeholder="-100xxxxxxxxxx" oninput="syncTgInputs('topics')">
+                            </div>
+                            <div class="form-group btn-align-bottom">
+                                <button class="btn btn-primary" onclick="saveTelegramCredentials()">
+                                    <span>保存群参数</span>
+                                </button>
+                                <button class="btn btn-secondary" onclick="testTelegramConnection()">
+                                    <span>测试连通性</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Guide Box -->
+                        <div class="guide-box mt-3">
+                            <div class="guide-title">
+                                <span>💡 <b>如何接入您的 Newton Protocol Telegram 群与各个 Topic？（2 分钟极简指南）</b></span>
+                            </div>
+                            <div class="guide-content">
+                                <ol>
+                                    <li><b>第一步：获取 Bot Token</b><br>在 Telegram 搜索 <code>@BotFather</code>，发送 <code>/newbot</code> 创建机器人（如 <i>Newton Protocol Bot</i>），复制获得的 HTTP API Token 填入上方输入框。</li>
+                                    <li><b>第二步：把 Bot 拉进 Newton Protocol 群并设为管理员</b><br>进入群设置 ➔ 管理员 (Administrators) ➔ 添加您的 Bot ➔ 务必开启 <b>“Manage Topics” (管理话题)</b> 与 <b>“Post Messages” (发消息)</b> 权限。</li>
+                                    <li><b>第三步：获取超级群 Chat ID 与各板块 Topic Thread ID</b><br>
+                                        • <b>自动识别（推荐）：</b>Bot 进群后，在群内任意话题发一条任意文字（如 <code>test</code>），点击上方【⚡ 一键自动识别群与所有话题 ID】，平台自动填入！<br>
+                                        • <b>手动获取：</b>在 Telegram 电脑端右键点击任意话题（如 <i># General</i> 或 <i>🇨🇳 CHINESE CHAT</i>）➔ 点击 <b>“Copy Link” (复制链接)</b>。<br>
+                                        链接格式为：<code>https://t.me/c/2156890123/34</code><br>
+                                        - 中间数字 <code>2156890123</code> 前面加 <code>-100</code> 即为群 <b>Chat ID</b>（例如 <code>-1002156890123</code>）；<br>
+                                        - 末尾数字 <code>34</code> 即为该话题的 <b>Thread ID</b>！填入下方对应行保存即可。
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Topic Mapping Tables Grouped by Category -->
+                    <div id="topicsTablesContainer">
+                        <!-- Generated dynamically for 11国语言国家频道, 核心投研与生态, 社区综合板块 -->
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 4: AI RESEARCH DESK (Image 4 Reference)              -->
+                <!-- ======================================================== -->
+                <section id="tab-research" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>🤖 ENI / NEWTON AI 投研与生态发布中心</h2>
+                            <p class="subtext">6 大核心投研专栏，自动深度结合 scan.eniac.network 链上实时统计、并行架构、AI Agent及全球宏观进行研报生成与直发。</p>
+                        </div>
+                    </div>
+
+                    <div class="research-layout-grid">
+                        <!-- Left: 6 Core Research Desks -->
+                        <div class="research-desks-column">
+                            <h4 class="col-title">6 核心研报专栏</h4>
+
+                            <!-- Desk 1 -->
+                            <div class="desk-card" onclick="selectResearchDesk('random')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">🎲</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>每小时随机投研</strong>
+                                        <span>动态抓取主网 TPS、区块高度与微观机制</span>
+                                    </div>
+                                    <span class="badge badge-primary">Hourly</span>
+                                </div>
+                                <p class="desk-desc">提炼并行执行调度优化、MVCC 冲突降低等硬核技术亮点。</p>
+                            </div>
+
+                            <!-- Desk 2 -->
+                            <div class="desk-card" onclick="selectResearchDesk('daily')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">🌅</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>ENI 早报 / 每日生态脉搏</strong>
+                                        <span>24h全网交易量、活跃地址、出块时延与宏观</span>
+                                    </div>
+                                    <span class="badge badge-gold">Daily Pulse</span>
+                                </div>
+                                <p class="desk-desc">每日早间 09:00 全景式呈现主网生态发展与全球宏观。</p>
+                            </div>
+
+                            <!-- Desk 3 -->
+                            <div class="desk-card" onclick="selectResearchDesk('architecture')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">⚡</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>底层技术架构解构</strong>
+                                        <span>并行EVM、亚秒级敲定、Newton Hub与异构链</span>
+                                    </div>
+                                    <span class="badge badge-cyan">Architecture</span>
+                                </div>
+                                <p class="desk-desc">深入分析状态依赖检测 DAG 与多核 CPU 调度算法。</p>
+                            </div>
+
+                            <!-- Desk 4 -->
+                            <div class="desk-card" onclick="selectResearchDesk('ai_rwa')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">🧠</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>AI Agent 与 RWA 创新</strong>
+                                        <span>智能体去中心化推理结算与真实资产代币化</span>
+                                    </div>
+                                    <span class="badge badge-purple">AI × RWA</span>
+                                </div>
+                                <p class="desk-desc">解析高频自主决策 Agent 与链上低滑点清算通道。</p>
+                            </div>
+
+                            <!-- Desk 5 -->
+                            <div class="desk-card" onclick="selectResearchDesk('risk')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">🚨</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>链上异动与风险提示</strong>
+                                        <span>Gas 波动巡检、大单异动监控与安全指引</span>
+                                    </div>
+                                    <span class="badge badge-danger">Risk Alert</span>
+                                </div>
+                                <p class="desk-desc">全天候链上健康度巡检，保障社区资产安全。</p>
+                            </div>
+
+                            <!-- Desk 6 -->
+                            <div class="desk-card" onclick="selectResearchDesk('quotes')">
+                                <div class="desk-header">
+                                    <span class="desk-icon">💡</span>
+                                    <div class="desk-title-wrap">
+                                        <strong>顶级投资哲学与金句</strong>
+                                        <span>精选中本聪、Vitalik、芒格等Web3思想精粹</span>
+                                    </div>
+                                    <span class="badge badge-secondary">Wisdom</span>
+                                </div>
+                                <p class="desk-desc">结合 ENI 长期主义工程哲学，凝聚社区信仰。</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: Editable Dispatch Console -->
+                        <div class="dispatch-console-card">
+                            <div class="card-header-clean">
+                                <div class="dispatch-title-wrap">
+                                    <h4>研报投递控制台 (Dispatch Console)</h4>
+                                    <span class="badge badge-info" id="activeDeskBadge">未选择专栏</span>
+                                </div>
+                                <div class="dispatch-actions-top">
+                                    <button class="btn btn-secondary btn-sm" onclick="regenerateCurrentDesk()">
+                                        <span>🔄 重新生成此专栏</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="dispatch-body">
+                                <div class="form-group mb-3">
+                                    <label>研报标题:</label>
+                                    <input type="text" id="dispatchTitleInput" class="form-input" placeholder="请从左侧选择研报专栏或手动撰写...">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label>研报正文 (支持格式化):</label>
+                                    <textarea id="dispatchContentInput" class="form-textarea" rows="12" placeholder="点击左侧任意研报卡片，AI 将自动结合 scan.eniac.network 最新链上数据完成撰写..."></textarea>
+                                </div>
+
+                                <div class="dispatch-routing-row">
+                                    <div class="routing-item">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="chkDispatchTg" checked>
+                                            <strong>定向推送至 Telegram 话题:</strong>
+                                        </label>
+                                        <select id="dispatchTgThreadSelect" class="select-sm">
+                                            <option value="1" selected>💬 # General (#1) - 综合大厅</option>
+                                            <option value="16">🗣️ 🇬🇧 ENGLISH CHAT (#16) - 英文讨论群</option>
+                                            <option value="17">🗣️ 🇨🇳 CHINESE CHAT (#17) - 中文讨论群</option>
+                                            <option value="18">🗣️ KOREAN CHAT (#18) - 韩文讨论群</option>
+                                            <option value="19">🗣️ 🇻🇳 VIETNAMESE CHAT (#19) - 越南语讨论群</option>
+                                            <option value="13">✅ START HERE (#13) - 入门指引</option>
+                                            <option value="12">📝 ABOUT NEWTON PROTOCOL (#12) - 关于牛顿协议</option>
+                                            <option value="32">🎬 VIDEO CENTRE (#32) - 视频中心</option>
+                                            <option value="31">📣 MARKETING TOOLS (#31) - 营销工具</option>
+                                            <option value="15">🎉 REWARDS AND BENEFITS (#15) - 奖励与福利</option>
+                                            <option value="14">❤️ NEWTON PROTOCOL CHARITY (#14) - 慈善公益</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="routing-item">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="chkDispatchTw">
+                                            <strong>同时发布到 Twitter (@eni_newton)</strong>
+                                        </label>
+                                        <span class="routing-sub">自动提取前240字生成摘要配图推文</span>
+                                    </div>
+                                </div>
+
+                                <div class="dispatch-submit-row">
+                                    <button class="btn btn-primary btn-lg btn-block" onclick="submitDispatchNow()">
+                                        <span>🚀 一键发布研报至选定渠道</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 5: SCHEDULED TASKS (Image 3 Reference)               -->
+                <!-- ======================================================== -->
+                <section id="tab-scheduler" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>⏰ 定时自动化任务管理 (Time Scheduler)</h2>
+                            <p class="subtext">监控与调度 7 大自动化定时任务，支持可视化启停、Cron 表达式核验、即时手动触发与执行审计历史。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="loadScheduledTasks()">
+                                <span>🔄 刷新任务状态</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SECTION A: 每日两次全自动发帖至 #General (英文真实链上数据) -->
+                    <div class="card mb-4" style="border-left: 4px solid var(--primary);">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>🌐</span>
+                                    <span>每日 2 次全自动发帖至 #General (英文频道)</span>
+                                </h3>
+                                <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
+                                    每日两次提取 ENI Chain (ChainID: 173) 官方真实链上数据，生成地道简约英文图文，全自动推送至 <strong># General (Thread #1)</strong>。
+                                </p>
+                            </div>
+                            <span class="badge badge-success">自动发帖已正式启动</span>
+                        </div>
+                        <div class="daily-general-grid mt-3" id="dailyGeneralSlotsContainer" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+                            <!-- Slot 1: 10:00 -->
+                            <div class="daily-general-card">
+                                <div class="daily-general-header">
+                                    <span class="daily-general-title">🌅 晨间 10:00：链上数据全览</span>
+                                    <span id="slotStatus_morning" class="badge badge-info">自动就绪</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                                    <strong>主题：</strong>ENI Chain Daily On-Chain Overview<br>
+                                    <strong>内容：</strong>实时区块高度、累计交易数、独立地址数、Gas 与出块速度<br>
+                                    <strong>定向：</strong># General (Thread #1) · 全英文简约文案
+                                </div>
+                                <button class="btn btn-primary btn-sm mt-3 w-100" onclick="triggerDailySlot('morning')">
+                                    <span>⚡ 立即触发测试发帖 (发至 #General)</span>
+                                </button>
+                            </div>
+
+                            <!-- Slot 2: 20:00 -->
+                            <div class="daily-general-card">
+                                <div class="daily-general-header">
+                                    <span class="daily-general-title">🌙 晚间 20:00：全天网络脉搏</span>
+                                    <span id="slotStatus_evening" class="badge badge-info">自动就绪</span>
+                                </div>
+                                <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                                    <strong>主题：</strong>ENI Chain 24H Network Pulse<br>
+                                    <strong>内容：</strong>全天链上交易处理量、最新区块确认、随机融入白皮书/生态宣传亮点<br>
+                                    <strong>定向：</strong># General (Thread #1) · 全英文简约文案
+                                </div>
+                                <button class="btn btn-primary btn-sm mt-3 w-100" onclick="triggerDailySlot('evening')">
+                                    <span>⚡ 立即触发测试发帖 (发至 #General)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 快捷派发白皮书与宣传专属贴 -->
+                        <div class="p-3 mt-3" style="background: rgba(255, 255, 255, 0.02); border-radius: 8px; border: 1px dashed var(--border);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <strong style="font-size: 13px; color: var(--text);">📖 白皮书核心技术 & 🚀 生态宣传专版快捷发帖</strong>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                        无需等待定时，可随时随机抽取白皮书 6 大架构或牛顿生态宣传亮点，自动携带实时链上指标推送至 #General。
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-secondary btn-sm" onclick="triggerDailySlot('whitepaper')">
+                                        <span>📖 随机发白皮书帖</span>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" onclick="triggerDailySlot('promotional')">
+                                        <span>🚀 随机发生态宣传帖</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION B: 4大语种多天排期发帖与海报管理 (Campaign Manager) -->
+                    <div class="card mb-4" style="border-left: 4px solid var(--cyan);">
+                        <div class="card-header-clean">
+                            <div>
+                                <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <span>📅</span>
+                                    <span>4大语种多天排期发帖与海报管理 (Day 1, Day 2... 自动入群)</span>
+                                </h3>
+                                <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
+                                    设定多天发帖排期，绑定您的宣传海报，自动将定制多语言文案同步推送至四大核心群：
+                                    <span class="badge badge-info">🇬🇧 English (#16)</span>
+                                    <span class="badge badge-info">🇨🇳 Chinese (#17)</span>
+                                    <span class="badge badge-info">🇰🇷 Korean (#18)</span>
+                                    <span class="badge badge-info">🇻🇳 Vietnamese (#19)</span>
+                                </p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary btn-sm" onclick="promptAddNewCampaign()">
+                                    <span>➕ 新增排期天数/计划</span>
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="loadCampaigns()">
+                                    <span>🔄 刷新排期列表</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Campaigns Container -->
+                        <div id="campaignsContainer" class="mt-3">
+                            <div class="text-center text-muted" style="padding: 20px;">正在加载多天排期计划...</div>
+                        </div>
+                    </div>
+
+                    <!-- 7 Task Cards Grid -->
+                    <div class="scheduler-cards-grid" id="schedulerCardsContainer">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <!-- Execution Audit History Logs -->
+                    <div class="card mt-4">
+                        <div class="card-header-clean">
+                            <h4>任务执行审计历史 (Execution Logs)</h4>
+                            <button class="btn btn-secondary btn-sm" onclick="loadSchedulerLogs()">
+                                <span>刷新日志</span>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>执行时间</th>
+                                        <th>任务名称</th>
+                                        <th>目标话题 / 渠道</th>
+                                        <th>状态</th>
+                                        <th>详情 / 返回值</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedulerLogsTableBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">正在加载日志...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 6: REAL-TIME ENI ON-CHAIN MONITORING                 -->
+                <!-- ======================================================== -->
+                <section id="tab-eni-live" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>⚡ ENI 真实链上数据与交易流 (scan.eniac.network)</h2>
+                            <p class="subtext">实时直连 ENI 主网 Blockscout v2 API，呈现最新区块、Gas、大额转账及异动警报。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="refreshLiveChain()">
+                                <span>🔄 立即刷新主网数据</span>
+                            </button>
+                            <button class="btn btn-primary" onclick="broadcastLiveSummary()">
+                                <span>📢 一键生成全网汇总并群发</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Big 4 Metrics -->
+                    <div class="stats-overview-grid">
+                        <div class="metric-card card-cyan">
+                            <div class="metric-icon">🧱</div>
+                            <div class="metric-data">
+                                <span class="metric-label">ENI 主网区块高度</span>
+                                <span class="metric-value" id="liveBlockHeight">41,568,230</span>
+                                <span class="metric-sub">出块速度: ~1.00s / 块</span>
+                            </div>
+                        </div>
+                        <div class="metric-card card-purple">
+                            <div class="metric-icon">📑</div>
+                            <div class="metric-data">
+                                <span class="metric-label">全网累计交易笔数</span>
+                                <span class="metric-value" id="liveTotalTxs">26,914,880</span>
+                                <span class="metric-sub">并行 EVM 调度处理中</span>
+                            </div>
+                        </div>
+                        <div class="metric-card card-gold">
+                            <div class="metric-icon">👛</div>
+                            <div class="metric-data">
+                                <span class="metric-label">独立活跃钱包地址</span>
+                                <span class="metric-value" id="liveTotalAddresses">5,223,190</span>
+                                <span class="metric-sub">主网生态持续扩容</span>
+                            </div>
+                        </div>
+                        <div class="metric-card card-green">
+                            <div class="metric-icon">⛽</div>
+                            <div class="metric-data">
+                                <span class="metric-label">当前 Gas 费率 (Fast)</span>
+                                <span class="metric-value" id="liveGasPrice">87.25 Gwei</span>
+                                <span class="metric-sub">毫秒级低成本结算</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Transactions Table -->
+                    <div class="card mt-4">
+                        <div class="card-header-clean">
+                            <h4>最新链上实时交易 (Latest Transactions)</h4>
+                            <span class="badge badge-success">Live RPC Stream</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>交易哈希 (Tx Hash)</th>
+                                        <th>区块</th>
+                                        <th>发送方 (From)</th>
+                                        <th>接收方 (To)</th>
+                                        <th>价值 (ENI)</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveTxsTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">正在连接 scan.eniac.network 抓取最新交易...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 7: SETTINGS & APIS                                   -->
+                <!-- ======================================================== -->
+                <section id="tab-settings" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>⚙️ 系统综合设置与 API 密钥配置</h2>
+                            <p class="subtext">配置 Twitter API v2 OAuth 1.0a 密钥、Telegram Bot Token、链上告警阈值及每日自动发帖时段。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="saveAllSettings()">
+                                <span>💾 保存全部系统设置</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid">
+                        <!-- Telegram Config -->
+                        <div class="card">
+                            <div class="card-header-clean">
+                                <h4>Telegram 机器人与群组设置</h4>
+                                <span class="badge badge-info" id="cfgTgBadge">Forum Supergroup</span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>Telegram Bot Token:</label>
+                                <input type="password" id="cfgTgBotToken" class="form-input" placeholder="例如: 123456789:ABC-DEF..." oninput="syncTgInputs('settings')">
+                                <small class="text-muted">通过 Telegram @BotFather 创建并获取 Token</small>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>超级群 Chat ID (Supergroup ID):</label>
+                                <input type="text" id="cfgTgChatId" class="form-input" placeholder="例如: -100xxxxxxxxxx" oninput="syncTgInputs('settings')">
+                                <small class="text-muted">请务必将 Bot 拉入 Newton Protocol 群并设为管理员（勾选管理话题权限）</small>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="checkbox-label mt-2">
+                                    <input type="checkbox" id="cfgTgEnabled" checked>
+                                    <span>启用 Telegram 自动化发帖与广播</span>
+                                </label>
+                            </div>
+                            <div class="btn-align-bottom mt-3">
+                                <button class="btn btn-secondary btn-sm" onclick="testTelegramConnection()">
+                                    <span>🔍 测试连通性</span>
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="autoDetectGroupAndTopics()">
+                                    <span>⚡ 自动检测群与话题 ID</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Twitter Config -->
+                        <div class="card">
+                            <div class="card-header-clean">
+                                <h4>Twitter (X.com) API v2 凭证</h4>
+                                <span class="badge badge-x">OAuth 1.0a User Context</span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>API Key (Consumer Key):</label>
+                                <input type="password" id="cfgTwApiKey" class="form-input">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>API Secret:</label>
+                                <input type="password" id="cfgTwApiSecret" class="form-input">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>Access Token:</label>
+                                <input type="password" id="cfgTwAccessToken" class="form-input">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>Access Token Secret:</label>
+                                <input type="password" id="cfgTwTokenSecret" class="form-input">
+                            </div>
+                        </div>
+
+                        <!-- Chain & Alert Thresholds -->
+                        <div class="card">
+                            <div class="card-header-clean">
+                                <h4>ENI 链监控与异动阈值</h4>
+                                <span class="badge badge-info">Chain ID 173</span>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>RPC 节点地址:</label>
+                                <input type="text" id="cfgRpcUrl" class="form-input" value="https://rpc.eniac.network">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>大额巨鲸转账阈值 (USD):</label>
+                                <input type="number" id="cfgWhaleUsd" class="form-input" value="100000">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label>轮询时间间隔 (秒):</label>
+                                <input type="number" id="cfgPollInterval" class="form-input" value="6">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="checkbox-label mt-2">
+                                    <input type="checkbox" id="cfgAutoPublish" checked>
+                                    <span>发现巨鲸异动时自动发布推文与群消息</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================================================== -->
+                <!-- TAB 8: POST HISTORY                                      -->
+                <!-- ======================================================== -->
+                <section id="tab-history" class="tab-pane">
+                    <div class="pane-header">
+                        <div>
+                            <h2>📜 发帖与广播历史审计 (Posts History)</h2>
+                            <p class="subtext">查看所有通过本控制台、自动化调度器和链上监听器发布的全部推特与 Telegram 历史。</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="loadHistory()">
+                                <span>🔄 刷新历史</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>类型</th>
+                                        <th>标题</th>
+                                        <th>Telegram 状态</th>
+                                        <th>Twitter 状态</th>
+                                        <th>发送时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">正在加载历史记录...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/app.js?v=2.2.1"></script>
+</body>
+</html>

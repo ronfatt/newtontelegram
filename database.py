@@ -141,6 +141,12 @@ async def get_app_config() -> AppConfig:
                 print(f"[DB] Error loading config: {e}")
         # Default config
         cfg = AppConfig()
+        cfg.telegram.enabled = True
+        cfg.telegram.bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "8839374237:AAEFdFgmF07h-M9PBwr5bXALibAo3-CRGGY")
+        cfg.telegram.chat_id = os.environ.get("TELEGRAM_CHAT_ID", "-1004381922114")
+        cfg.auto_publish = True
+        cfg.daily_schedule.enabled = True
+        cfg.thresholds.enable_daily_summary = True
         await save_app_config(cfg)
         return cfg
 

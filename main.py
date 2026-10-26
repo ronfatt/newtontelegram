@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, Fil
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from config import AppConfig, IMAGES_DIR, STATIC_DIR, IS_VERCEL
+from config import AppConfig, IMAGES_DIR, STATIC_DIR, PUBLIC_DIR, IS_VERCEL
 from database import (
     init_db, get_app_config, save_app_config,
     get_recent_posts, get_platform_metrics,
@@ -790,9 +790,13 @@ except Exception:
 @app.get("/", response_class=HTMLResponse)
 async def root():
     candidates = [
+        os.path.join(PUBLIC_DIR, "index.html"),
         os.path.join(STATIC_DIR, "index.html"),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "public", "index.html")),
         os.path.abspath(os.path.join(os.path.dirname(__file__), "static", "index.html")),
+        os.path.abspath("public/index.html"),
         os.path.abspath("static/index.html"),
+        "/var/task/public/index.html",
         "/var/task/static/index.html"
     ]
     for p in candidates:
@@ -808,9 +812,16 @@ async def root():
 @app.get("/static/{file_path:path}")
 async def serve_static_file(file_path: str):
     candidates = [
+        os.path.join(PUBLIC_DIR, "static", file_path),
+        os.path.join(PUBLIC_DIR, file_path),
         os.path.join(STATIC_DIR, file_path),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "public", "static", file_path)),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "public", file_path)),
         os.path.abspath(os.path.join(os.path.dirname(__file__), "static", file_path)),
+        os.path.abspath(os.path.join("public", file_path)),
         os.path.abspath(os.path.join("static", file_path)),
+        os.path.join("/var/task/public/static", file_path),
+        os.path.join("/var/task/public", file_path),
         os.path.join("/var/task/static", file_path)
     ]
     for p in candidates:
@@ -830,6 +841,10 @@ async def serve_static_file(file_path: str):
             with open(p, "r", encoding="utf-8", errors="ignore") as f:
                 return Response(content=f.read(), media_type=media_type)
     raise HTTPException(status_code=404, detail="Static file not found")
+
+@app.get("/images/{file_path:path}")
+async def serve_image_file(file_path: str):
+    return await serve_static_file(f"images/{file_path}")
 
 if __name__ == "__main__":
     import uvicorn

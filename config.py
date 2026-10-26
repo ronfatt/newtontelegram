@@ -32,7 +32,7 @@ class AlertThresholds(BaseModel):
     news_poll_interval: int = Field(default=15, description="Interval in minutes to poll international news")
 
 class TelegramSettings(BaseModel):
-    enabled: bool = Field(default=False)
+    enabled: bool = Field(default=True)
     bot_token: str = Field(default_factory=lambda: os.environ.get("TELEGRAM_BOT_TOKEN", "8839374237:AAEFdFgmF07h-M9PBwr5bXALibAo3-CRGGY"), description="Telegram Bot API Token (from @BotFather)")
     chat_id: str = Field(default_factory=lambda: os.environ.get("TELEGRAM_CHAT_ID", "-1004381922114"), description="Target Chat ID or Channel (@channel_name or -100xxx)")
     thread_id: Optional[str] = Field(default="", description="Optional Message Thread ID for forum groups")
@@ -153,7 +153,9 @@ if IS_VERCEL:
     DB_PATH = "/tmp/platform.db"
     IMAGES_DIR = "/tmp/generated_images"
     STATIC_DIR = os.path.join(BASE_DIR, "static")
+    PUBLIC_DIR = os.path.join(BASE_DIR, "public")
 else:
     DB_PATH = os.path.join(BASE_DIR, "platform.db")
     IMAGES_DIR = os.path.join(BASE_DIR, "generated_images")
     STATIC_DIR = os.path.join(BASE_DIR, "static")
+    PUBLIC_DIR = os.path.join(BASE_DIR, "public")
