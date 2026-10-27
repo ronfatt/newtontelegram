@@ -12,14 +12,32 @@ class TelegramPublisher:
     BASE_URL = "https://api.telegram.org/bot"
 
     @classmethod
+    def clean_token(cls, token: Optional[str]) -> str:
+        """Sanitizes bot token by stripping whitespace, quotes, and unnecessary 'bot' prefix"""
+        if not token:
+            return ""
+        t = str(token).strip().strip('"').strip("'")
+        if t.lower().startswith("bot") and ":" in t:
+            t = t[3:].strip()
+        return t
+
+    @classmethod
     async def test_connection(cls, bot_token: str) -> Dict[str, Any]:
         """Validates bot token by calling getMe"""
+        bot_token = cls.clean_token(bot_token)
         if not bot_token:
             return {"success": False, "error": "Bot token is empty"}
         url = f"{cls.BASE_URL}{bot_token}/getMe"
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 resp = await client.get(url)
+                if resp.status_code != 200:
+                    try:
+                        err_json = resp.json()
+                        desc = err_json.get("description", f"Telegram API 返回错误 ({resp.status_code})")
+                    except Exception:
+                        desc = f"Telegram HTTP {resp.status_code}: 请检查 Bot Token 是否正确"
+                    return {"success": False, "error": desc}
                 data = resp.json()
                 if data.get("ok"):
                     bot_user = data["result"]
@@ -60,13 +78,26 @@ class TelegramPublisher:
         通过 getUpdates?limit=50 自动侦测群里的消息和话题 (Topics)
         用户在各个 Topic 话题下发一条消息（例如打字 'test'），点击按钮即可自动识别其 thread_id！
         """
+        bot_token = cls.clean_token(bot_token)
         if not bot_token:
-            return {"success": False, "error": "Bot token is empty"}
+            return {"success": False, "error": "Bot token 为空，请输入有效的 Telegram Bot Token"}
         url = f"{cls.BASE_URL}{bot_token}/getUpdates?limit=50"
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.get(url)
-                data = resp.json()
+                if resp.status_code != 200:
+                    try:
+                        err_json = resp.json()
+                        desc = err_json.get("description", f"Telegram API 返回错误 ({resp.status_code})")
+                    except Exception:
+                        desc = f"Telegram HTTP {resp.status_code}: 请检查 Bot Token 是否正确（勿包含多余空格或前缀）"
+                    return {"success": False, "error": desc}
+
+                try:
+                    data = resp.json()
+                except Exception:
+                    return {"success": False, "error": "Telegram 返回了非 JSON 数据，请检查网络或 Bot Token"}
+
                 if not data.get("ok"):
                     return {"success": False, "error": data.get("description", "Failed to get updates")}
 
@@ -126,6 +157,8 @@ class TelegramPublisher:
         2. 429 智能限流自愈 (依据 retry_after 智能等待后重试)
         3. parse_mode 解析实体出错自动降级为纯文本重试
         """
+        bot_token = cls.clean_token(bot_token)
+        chat_id = str(chat_id).strip() if chat_id else ""
         if not bot_token or not chat_id:
             return {"success": False, "error": "Telegram Bot Token or Chat ID not configured"}
 

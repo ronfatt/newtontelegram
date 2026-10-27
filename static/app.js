@@ -656,7 +656,15 @@ function syncTgInputs(source) {
 }
 
 async function autoDetectGroupAndTopics() {
-    const token = (document.getElementById("cfgTgBotToken")?.value || document.getElementById("tgBotTokenInput")?.value || "").trim();
+    let token = (document.getElementById("tgBotTokenInput")?.value || document.getElementById("cfgTgBotToken")?.value || "").trim();
+    if (token.toLowerCase().startsWith("bot") && token.includes(":")) {
+        token = token.substring(3).trim();
+        const t1 = document.getElementById("tgBotTokenInput");
+        const t2 = document.getElementById("cfgTgBotToken");
+        if (t1) t1.value = token;
+        if (t2) t2.value = token;
+    }
+
     if (!token) {
         showToast("请先输入 Telegram Bot Token 再点击自动检测", "error");
         return;
@@ -727,8 +735,17 @@ async function autoDetectGroupAndTopics() {
 }
 
 async function saveTelegramCredentials() {
-    const token = (document.getElementById("cfgTgBotToken")?.value || document.getElementById("tgBotTokenInput")?.value || "").trim();
-    const chatId = (document.getElementById("cfgTgChatId")?.value || document.getElementById("tgChatIdInput")?.value || "").trim();
+    const tInput = document.getElementById("tgBotTokenInput")?.value?.trim() || "";
+    const cfgTInput = document.getElementById("cfgTgBotToken")?.value?.trim() || "";
+    let token = tInput || cfgTInput;
+    if (token.toLowerCase().startsWith("bot") && token.includes(":")) {
+        token = token.substring(3).trim();
+    }
+
+    const cInput = document.getElementById("tgChatIdInput")?.value?.trim() || "";
+    const cfgCInput = document.getElementById("cfgTgChatId")?.value?.trim() || "";
+    const chatId = cInput || cfgCInput;
+
     const enabled = document.getElementById("cfgTgEnabled") ? document.getElementById("cfgTgEnabled").checked : true;
     try {
         const cfgRes = await fetch("/api/config");
@@ -763,6 +780,20 @@ async function testTelegramConnection() {
         updateStatus();
     } catch (e) {
         showToast("Telegram 测试失败: " + e.message, "error");
+    }
+}
+
+async function testTwitterConnection() {
+    await saveAllSettings();
+    showToast("正在测试 Twitter (X.com) 凭证与连接...", "success");
+    try {
+        const res = await fetch("/api/action/test-twitter", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "测试失败");
+        showToast("🎉 Twitter 凭证测试成功！已成功连接并验证权限", "success");
+        updateStatus();
+    } catch (e) {
+        showToast("Twitter 测试失败: " + e.message, "error");
     }
 }
 
@@ -1396,6 +1427,8 @@ async function loadSettings() {
             if (s) s.value = cfg.twitter.api_secret || "";
             if (t) t.value = cfg.twitter.access_token || "";
             if (ts) ts.value = cfg.twitter.access_token_secret || "";
+            const twEn = document.getElementById("cfgTwEnabled");
+            if (twEn) twEn.checked = cfg.twitter.enabled !== false;
         }
 
         // Alerts / Thresholds
@@ -1431,17 +1464,32 @@ async function saveAllSettings() {
 
         // Telegram
         if (!cfg.telegram) cfg.telegram = {};
-        cfg.telegram.bot_token = (document.getElementById("cfgTgBotToken")?.value || document.getElementById("tgBotTokenInput")?.value || "").trim();
-        cfg.telegram.chat_id = (document.getElementById("cfgTgChatId")?.value || document.getElementById("tgChatIdInput")?.value || "").trim();
+        const tVal1 = document.getElementById("cfgTgBotToken")?.value?.trim() || "";
+        const tVal2 = document.getElementById("tgBotTokenInput")?.value?.trim() || "";
+        let tInput = tVal1 || tVal2;
+        if (tInput.toLowerCase().startsWith("bot") && tInput.includes(":")) {
+            tInput = tInput.substring(3).trim();
+        }
+        const cVal1 = document.getElementById("cfgTgChatId")?.value?.trim() || "";
+        const cVal2 = document.getElementById("tgChatIdInput")?.value?.trim() || "";
+        const cInput = cVal1 || cVal2;
+        if (tInput) cfg.telegram.bot_token = tInput;
+        if (cInput) cfg.telegram.chat_id = cInput;
         const cfgEnabled = document.getElementById("cfgTgEnabled");
         if (cfgEnabled) cfg.telegram.enabled = cfgEnabled.checked;
 
         // Twitter
         if (!cfg.twitter) cfg.twitter = {};
-        cfg.twitter.api_key = (document.getElementById("cfgTwApiKey")?.value || "").trim();
-        cfg.twitter.api_secret = (document.getElementById("cfgTwApiSecret")?.value || "").trim();
-        cfg.twitter.access_token = (document.getElementById("cfgTwAccessToken")?.value || "").trim();
-        cfg.twitter.access_token_secret = (document.getElementById("cfgTwTokenSecret")?.value || "").trim();
+        const twKey = (document.getElementById("cfgTwApiKey")?.value || "").trim();
+        const twSec = (document.getElementById("cfgTwApiSecret")?.value || "").trim();
+        const twTok = (document.getElementById("cfgTwAccessToken")?.value || "").trim();
+        const twTokSec = (document.getElementById("cfgTwTokenSecret")?.value || "").trim();
+        cfg.twitter.api_key = twKey;
+        cfg.twitter.api_secret = twSec;
+        cfg.twitter.access_token = twTok;
+        cfg.twitter.access_token_secret = twTokSec;
+        const twEnCb = document.getElementById("cfgTwEnabled");
+        cfg.twitter.enabled = twEnCb ? twEnCb.checked : Boolean(twKey && twTok);
 
         // Chain & Thresholds
         if (!cfg.thresholds) cfg.thresholds = {};

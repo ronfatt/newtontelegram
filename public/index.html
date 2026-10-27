@@ -388,7 +388,7 @@
                         <div class="form-row-3">
                             <div class="form-group">
                                 <label>Bot Token:</label>
-                                <input type="password" id="tgBotTokenInput" class="form-input" placeholder="bot123456:ABC-DEF..." oninput="syncTgInputs('topics')">
+                                <input type="password" id="tgBotTokenInput" class="form-input" placeholder="例如: 8839374237:AAFMhu8..." oninput="syncTgInputs('topics')">
                             </div>
                             <div class="form-group">
                                 <label>超级群 Chat ID (Forum):</label>
@@ -878,7 +878,12 @@
                         <div class="card">
                             <div class="card-header-clean">
                                 <h4>Twitter (X.com) API v2 凭证</h4>
-                                <span class="badge badge-x">OAuth 1.0a User Context</span>
+                                <div>
+                                    <label class="checkbox-label" style="display:inline-flex;margin-right:12px;">
+                                        <input type="checkbox" id="cfgTwEnabled" checked> 启用 X 发帖
+                                    </label>
+                                    <span class="badge badge-x">OAuth 1.0a User Context</span>
+                                </div>
                             </div>
                             <div class="form-group mb-2">
                                 <label>API Key (Consumer Key):</label>
@@ -895,6 +900,11 @@
                             <div class="form-group mb-2">
                                 <label>Access Token Secret:</label>
                                 <input type="password" id="cfgTwTokenSecret" class="form-input">
+                            </div>
+                            <div class="form-group mt-2">
+                                <button class="btn btn-secondary btn-sm" onclick="testTwitterConnection()">
+                                    <span>🐦 测试 Twitter API 凭证连通性</span>
+                                </button>
                             </div>
                         </div>
 
