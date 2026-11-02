@@ -482,6 +482,29 @@ async def delete_campaign_endpoint(req: Dict[str, int]):
     await delete_campaign(cid)
     return {"success": True, "message": f"计划 #{cid} 已删除"}
 
+@app.post("/api/campaigns/toggle-status")
+async def toggle_campaign_status_endpoint(req: Dict[str, Any]):
+    from database import set_campaign_status
+    cid = req.get("id")
+    status = req.get("status", "paused")
+    if not cid:
+        raise HTTPException(status_code=400, detail="缺少 ID")
+    await set_campaign_status(cid, status)
+    status_label = "已暂停" if status == "paused" else "已恢复为待发送"
+    return {"success": True, "message": f"排期计划 #{cid} {status_label}", "status": status}
+
+@app.post("/api/campaigns/pause-all")
+async def pause_all_campaigns_endpoint():
+    from database import pause_all_campaigns
+    await pause_all_campaigns()
+    return {"success": True, "message": "已全部暂停 4 大语种多天排期模版自动群发"}
+
+@app.post("/api/campaigns/resume-all")
+async def resume_all_campaigns_endpoint():
+    from database import resume_all_campaigns
+    await resume_all_campaigns()
+    return {"success": True, "message": "已恢复 4 大语种多天排期计划"}
+
 @app.post("/api/campaigns/translate")
 async def translate_campaign_endpoint(req: CampaignTranslateRequest):
     if not req.text.strip():

@@ -236,8 +236,9 @@ class DailyScheduler:
                             print(f"[Daily Scheduler] Triggering afternoon post to #General at {current_hm}...")
                             await self.trigger_slot("afternoon", force=False)
 
-                    # 2. 检查多天排期计划 (4 大语言频道)
-                    if telegram_auto_allowed:
+                    # 2. 检查多天排期计划 (4 大语言频道) - 仅当未暂停且明确开启时执行
+                    campaigns_auto_allowed = telegram_auto_allowed and getattr(ds, "campaigns_enabled", False)
+                    if campaigns_auto_allowed:
                         from database import get_all_campaigns
                         campaigns = await get_all_campaigns()
                         today_ymd = now.strftime("%Y-%m-%d")

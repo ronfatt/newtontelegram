@@ -960,10 +960,15 @@ async function loadCampaigns() {
                             <input type="text" class="form-input" style="width: 130px; padding: 4px 8px; font-family: monospace;" id="cTime_${c.id}" value="${c.scheduled_time || '10:00'}" placeholder="例如 10:00">
                         </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="badge ${c.status === 'sent' ? 'badge-success' : 'badge-warning'}">
-                            ${c.status === 'sent' ? '✅ 已执行投递' : '⏳ 待自动发送'}
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span class="badge ${c.status === 'sent' ? 'badge-success' : (c.status === 'paused' ? 'badge-secondary' : 'badge-warning')}" style="${c.status === 'paused' ? 'background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3);' : ''}">
+                            ${c.status === 'sent' ? '✅ 已执行投递' : (c.status === 'paused' ? '⏸️ 已暂停自动群发' : '⏳ 待自动发送')}
                         </span>
+                        ${c.status === 'paused' ? `
+                            <button class="btn btn-secondary btn-sm" style="color: var(--emerald);" onclick="toggleCampaignStatus(${c.id}, 'pending')">▶️ 恢复发送</button>
+                        ` : `
+                            <button class="btn btn-secondary btn-sm" style="color: var(--amber);" onclick="toggleCampaignStatus(${c.id}, 'paused')">⏸️ 暂停群发</button>
+                        `}
                         <button class="btn btn-secondary btn-sm" onclick="saveCampaign(${c.id})">💾 保存修改</button>
                         <button class="btn btn-primary btn-sm" onclick="triggerCampaignNow(${c.id})">🚀 立即发送4大频道</button>
                         <button class="btn btn-secondary btn-sm" style="color: var(--crimson);" onclick="deleteCampaign(${c.id})">🗑️</button>
@@ -1127,6 +1132,7 @@ async function saveCampaign(cid) {
 
     const c = allCampaigns.find(item => item.id === cid);
     const dayNo = c ? c.day_number : 1;
+    const curStatus = c ? (c.status || "paused") : "paused";
 
     try {
         const res = await fetch("/api/campaigns/update", {
@@ -1142,7 +1148,7 @@ async function saveCampaign(cid) {
                 text_en: textEn,
                 text_ko: textKo,
                 text_vi: textVi,
-                status: "pending"
+                status: curStatus
             })
         });
         const data = await res.json();
@@ -1154,6 +1160,55 @@ async function saveCampaign(cid) {
         }
     } catch (e) {
         showToast("保存异常: " + e.message, "error");
+    }
+}
+
+async function toggleCampaignStatus(cid, newStatus) {
+    try {
+        const res = await fetch("/api/campaigns/toggle-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: cid, status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, "success");
+            loadCampaigns();
+        } else {
+            showToast("切换失败: " + (data.detail || "未知错误"), "error");
+        }
+    } catch (e) {
+        showToast("请求失败: " + e.message, "error");
+    }
+}
+
+async function pauseAllCampaigns() {
+    try {
+        const res = await fetch("/api/campaigns/pause-all", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            showToast("⏸️ 已成功暂停所有 4 大语种模版自动群发！", "success");
+            loadCampaigns();
+        } else {
+            showToast("操作失败: " + (data.detail || "未知错误"), "error");
+        }
+    } catch (e) {
+        showToast("请求失败: " + e.message, "error");
+    }
+}
+
+async function resumeAllCampaigns() {
+    try {
+        const res = await fetch("/api/campaigns/resume-all", { method: "POST" });
+        const data = await res.json();
+        if (data.success) {
+            showToast("▶️ 已恢复 4 大语种模版排期自动群发！", "success");
+            loadCampaigns();
+        } else {
+            showToast("操作失败: " + (data.detail || "未知错误"), "error");
+        }
+    } catch (e) {
+        showToast("请求失败: " + e.message, "error");
     }
 }
 

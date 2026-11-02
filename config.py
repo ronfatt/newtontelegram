@@ -119,6 +119,7 @@ class DailyScheduleSettings(BaseModel):
     evening_time: str = Field(default="20:00", description="Evening post time (HH:MM)")
     auto_publish_twitter: bool = Field(default=False)
     auto_publish_telegram: bool = Field(default=True)
+    campaigns_enabled: bool = Field(default=False, description="Enable automatic multi-language campaign templates broadcasting")
 
 class AppConfig(BaseModel):
     chain: ChainSettings = Field(default_factory=ChainSettings)

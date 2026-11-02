@@ -677,12 +677,13 @@
                     </div>
 
                     <!-- SECTION B: 4大语种多天排期发帖与海报管理 (Campaign Manager) -->
-                    <div class="card mb-4" style="border-left: 4px solid var(--cyan);">
+                    <div class="card mb-4" style="border-left: 4px solid var(--amber);">
                         <div class="card-header-clean">
                             <div>
                                 <h3 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
                                     <span>📅</span>
-                                    <span>4大语种多天排期发帖与海报管理 (Day 1, Day 2... 自动入群)</span>
+                                    <span>4大语种多天排期发帖与海报管理 (Day 1, Day 2... 模版群发)</span>
+                                    <span class="badge badge-secondary" style="background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3);">⏸️ 模版自动群发已暂停</span>
                                 </h3>
                                 <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">
                                     设定多天发帖排期，绑定您的宣传海报，自动将定制多语言文案同步推送至四大核心群：
@@ -690,9 +691,16 @@
                                     <span class="badge badge-info">🇨🇳 Chinese (#17)</span>
                                     <span class="badge badge-info">🇰🇷 Korean (#18)</span>
                                     <span class="badge badge-info">🇻🇳 Vietnamese (#19)</span>
+                                    <span style="color: var(--amber); margin-left: 8px;">（已暂停定时重复群发固定文案与海报，按需可点击单个计划的【🚀 立即发送】执行）</span>
                                 </p>
                             </div>
                             <div class="header-actions">
+                                <button class="btn btn-secondary btn-sm" style="color: var(--amber); border-color: rgba(245, 158, 11, 0.4);" onclick="pauseAllCampaigns()">
+                                    <span>⏸️ 一键全部暂停</span>
+                                </button>
+                                <button class="btn btn-secondary btn-sm" style="color: var(--emerald);" onclick="resumeAllCampaigns()">
+                                    <span>▶️ 一键恢复全部</span>
+                                </button>
                                 <button class="btn btn-primary btn-sm" onclick="promptAddNewCampaign()">
                                     <span>➕ 新增排期天数/计划</span>
                                 </button>

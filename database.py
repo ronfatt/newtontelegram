@@ -533,7 +533,7 @@ async def seed_default_campaigns():
                     INSERT INTO multi_day_campaigns (
                         day_number, campaign_title, scheduled_time, poster_image,
                         text_zh, text_en, text_ko, text_vi, status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'paused')
                 """, (
                     c["day_number"], c["campaign_title"], c["scheduled_time"], c["poster_image"],
                     c["text_zh"], c["text_en"], c["text_ko"], c["text_vi"]
@@ -607,5 +607,20 @@ async def mark_campaign_sent(cid: int, results_json: str):
                 status = 'sent', sent_at = CURRENT_TIMESTAMP, send_results = ?
             WHERE id = ?
         """, (results_json, cid))
+        await db.commit()
+
+async def set_campaign_status(cid: int, status: str):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("UPDATE multi_day_campaigns SET status = ? WHERE id = ?", (status, cid))
+        await db.commit()
+
+async def pause_all_campaigns():
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("UPDATE multi_day_campaigns SET status = 'paused'")
+        await db.commit()
+
+async def resume_all_campaigns():
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("UPDATE multi_day_campaigns SET status = 'pending'")
         await db.commit()
 
